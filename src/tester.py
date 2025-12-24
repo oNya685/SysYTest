@@ -347,7 +347,7 @@ class CompilerTester:
         cases: List[TestCase],
         max_workers: int = 4,
         callback=None,
-        ramp_up_time: float = 10.0,
+        ramp_up_time: float = 5.0,
         ramp_up_threshold: int = 64
     ) -> List[Tuple[TestCase, TestResult]]:
         """

@@ -1,14 +1,16 @@
 """
-测试运行标签页
+测试运行标签页 - 现代化设计
 """
 import tkinter as tk
-from tkinter import ttk, scrolledtext, messagebox, filedialog
+from tkinter import ttk, messagebox, filedialog
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING
 import threading
 import queue
 
 from .base import BaseTab, OutputMixin
+from .theme import COLORS, create_styled_listbox, create_styled_text
+from .widgets import AnimatedProgressBar, IconButton
 from ..discovery import TestDiscovery
 from ..tester import CompilerTester
 
@@ -24,101 +26,201 @@ class TestTab(BaseTab, OutputMixin):
         self.tester: Optional[CompilerTester] = None
         self.is_running = False
         self.message_queue = queue.Queue()
-        self.current_lib_path: Optional[Path] = None  # 记住当前选中的测试库
+        self.current_lib_path: Optional[Path] = None
     
     def build(self):
         """构建测试运行标签页"""
-        main_frame = ttk.Frame(self.parent, padding="10")
+        main_frame = ttk.Frame(self.parent, padding=12)
         main_frame.pack(fill=tk.BOTH, expand=True)
         
-        self._build_config_section(main_frame)
-        self._build_selection_section(main_frame)
-        self._build_button_section(main_frame)
-        self._build_progress_section(main_frame)
-        self._build_output_section(main_frame)
+        # 上部：配置和选择
+        top_frame = ttk.Frame(main_frame)
+        top_frame.pack(fill=tk.BOTH, expand=True)
+        
+        self._build_config_section(top_frame)
+        self._build_selection_section(top_frame)
+        
+        # 分隔线
+        ttk.Separator(main_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=12)
+        
+        # 下部：控制和输出
+        bottom_frame = ttk.Frame(main_frame)
+        bottom_frame.pack(fill=tk.BOTH, expand=True)
+        
+        self._build_control_section(bottom_frame)
+        self._build_output_section(bottom_frame)
     
     def _build_config_section(self, parent):
         """项目配置区"""
-        config_frame = ttk.LabelFrame(parent, text="项目配置", padding="10")
-        config_frame.pack(fill=tk.X, pady=(0, 10))
+        config_frame = ttk.Frame(parent)
+        config_frame.pack(fill=tk.X, pady=(0, 12))
         
-        ttk.Label(config_frame, text="编译器项目:").pack(side=tk.LEFT)
+        # 项目路径
+        path_frame = ttk.Frame(config_frame)
+        path_frame.pack(fill=tk.X)
+        
+        ttk.Label(path_frame, text="编译器项目", style='Card.TLabel').pack(side=tk.LEFT)
+        
         self.project_var = tk.StringVar()
-        ttk.Entry(config_frame, textvariable=self.project_var, width=50).pack(
-            side=tk.LEFT, padx=5, fill=tk.X, expand=True)
-        ttk.Button(config_frame, text="浏览", command=self._browse_project).pack(side=tk.LEFT, padx=5)
-        ttk.Button(config_frame, text="编译项目", command=self._compile_project).pack(side=tk.LEFT)
+        self.project_entry = ttk.Entry(
+            path_frame, textvariable=self.project_var,
+            font=(self.config.gui.get_font(), 10)
+        )
+        self.project_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(12, 8))
+        
+        IconButton(path_frame, icon='folder', text='浏览', 
+                   command=self._browse_project).pack(side=tk.LEFT, padx=(0, 4))
+        IconButton(path_frame, icon='play', text='编译', 
+                   command=self._compile_project, style='Accent.TButton').pack(side=tk.LEFT)
+        
+        # 编译器信息
+        self.compiler_info = ttk.Label(
+            config_frame, text="", style='Status.TLabel'
+        )
+        self.compiler_info.pack(anchor=tk.W, pady=(8, 0))
     
     def _build_selection_section(self, parent):
         """测试选择区"""
         select_frame = ttk.Frame(parent)
-        select_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        select_frame.pack(fill=tk.BOTH, expand=True)
         
         # 左侧：测试库列表
-        left_frame = ttk.LabelFrame(select_frame, text="测试库", padding="5")
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        left_frame = ttk.Frame(select_frame)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 6))
         
-        self.lib_listbox = tk.Listbox(
-            left_frame, selectmode=tk.SINGLE, exportselection=False,
-            font=(self.config.gui.get_font(), self.config.gui.font_size))
-        self.lib_listbox.pack(fill=tk.BOTH, expand=True)
+        # 标题栏
+        left_header = ttk.Frame(left_frame)
+        left_header.pack(fill=tk.X, pady=(0, 6))
+        ttk.Label(left_header, text="📚 测试库", style='Card.TLabel',
+                  font=('微软雅黑', 10, 'bold')).pack(side=tk.LEFT)
+        self.lib_count_label = ttk.Label(left_header, text="", style='Status.TLabel')
+        self.lib_count_label.pack(side=tk.RIGHT)
+        
+        # 列表框容器
+        lib_container = ttk.Frame(left_frame)
+        lib_container.pack(fill=tk.BOTH, expand=True)
+        
+        self.lib_listbox = create_styled_listbox(
+            lib_container, selectmode=tk.SINGLE, exportselection=False,
+            font=(self.config.gui.get_font(), self.config.gui.font_size)
+        )
+        lib_scroll = ttk.Scrollbar(lib_container, orient=tk.VERTICAL, 
+                                    command=self.lib_listbox.yview)
+        self.lib_listbox.configure(yscrollcommand=lib_scroll.set)
+        
+        self.lib_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        lib_scroll.pack(side=tk.RIGHT, fill=tk.Y)
         self.lib_listbox.bind('<<ListboxSelect>>', self._on_lib_select)
         
         # 右侧：测试用例列表
-        right_frame = ttk.LabelFrame(select_frame, text="测试用例", padding="5")
-        right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 0))
+        right_frame = ttk.Frame(select_frame)
+        right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(6, 0))
         
-        self.case_listbox = tk.Listbox(
-            right_frame, selectmode=tk.EXTENDED, exportselection=False,
-            font=(self.config.gui.get_font(), self.config.gui.font_size))
-        self.case_listbox.pack(fill=tk.BOTH, expand=True)
+        # 标题栏
+        right_header = ttk.Frame(right_frame)
+        right_header.pack(fill=tk.X, pady=(0, 6))
+        ttk.Label(right_header, text="📝 测试用例", style='Card.TLabel',
+                  font=('微软雅黑', 10, 'bold')).pack(side=tk.LEFT)
+        self.case_count_label = ttk.Label(right_header, text="", style='Status.TLabel')
+        self.case_count_label.pack(side=tk.RIGHT)
+        
+        # 列表框容器
+        case_container = ttk.Frame(right_frame)
+        case_container.pack(fill=tk.BOTH, expand=True)
+        
+        self.case_listbox = create_styled_listbox(
+            case_container, selectmode=tk.EXTENDED, exportselection=False,
+            font=(self.config.gui.get_font(), self.config.gui.font_size)
+        )
+        case_scroll = ttk.Scrollbar(case_container, orient=tk.VERTICAL,
+                                     command=self.case_listbox.yview)
+        self.case_listbox.configure(yscrollcommand=case_scroll.set)
+        
+        self.case_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        case_scroll.pack(side=tk.RIGHT, fill=tk.Y)
 
-    def _build_button_section(self, parent):
-        """按钮区"""
-        btn_frame = ttk.Frame(parent)
-        btn_frame.pack(fill=tk.X, pady=(0, 10))
+    def _build_control_section(self, parent):
+        """控制区"""
+        control_frame = ttk.Frame(parent)
+        control_frame.pack(fill=tk.X, pady=(0, 12))
         
-        ttk.Button(btn_frame, text="刷新", command=self.refresh_lists).pack(side=tk.LEFT, padx=2)
-        ttk.Button(btn_frame, text="全选", command=self._select_all_cases).pack(side=tk.LEFT, padx=2)
-        ttk.Button(btn_frame, text="运行选中", command=self._run_selected).pack(side=tk.LEFT, padx=2)
-        ttk.Button(btn_frame, text="运行当前库", command=self._run_current_lib).pack(side=tk.LEFT, padx=2)
-        ttk.Button(btn_frame, text="运行全部", command=self._run_all).pack(side=tk.LEFT, padx=2)
+        # 左侧按钮组
+        left_btns = ttk.Frame(control_frame)
+        left_btns.pack(side=tk.LEFT)
         
-        self.stop_btn = ttk.Button(btn_frame, text="停止", command=self._stop_test, state=tk.DISABLED)
-        self.stop_btn.pack(side=tk.RIGHT, padx=2)
-    
-    def _build_progress_section(self, parent):
-        """进度和状态区"""
-        self.progress_var = tk.DoubleVar()
-        self.progress = ttk.Progressbar(parent, variable=self.progress_var, maximum=100)
-        self.progress.pack(fill=tk.X, pady=(0, 5))
+        IconButton(left_btns, icon='refresh', text='刷新',
+                   command=self.refresh_lists).pack(side=tk.LEFT, padx=(0, 4))
+        IconButton(left_btns, icon='check', text='全选',
+                   command=self._select_all_cases).pack(side=tk.LEFT, padx=(0, 4))
         
+        ttk.Separator(left_btns, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=8)
+        
+        IconButton(left_btns, icon='play', text='运行选中',
+                   command=self._run_selected).pack(side=tk.LEFT, padx=(0, 4))
+        IconButton(left_btns, icon='play', text='运行当前库',
+                   command=self._run_current_lib).pack(side=tk.LEFT, padx=(0, 4))
+        IconButton(left_btns, icon='play', text='运行全部',
+                   command=self._run_all, style='Accent.TButton').pack(side=tk.LEFT)
+        
+        # 右侧：停止按钮和状态
+        right_btns = ttk.Frame(control_frame)
+        right_btns.pack(side=tk.RIGHT)
+        
+        self.result_label = ttk.Label(right_btns, text="", style='Status.TLabel')
+        self.result_label.pack(side=tk.LEFT, padx=(0, 12))
+        
+        self.stop_btn = IconButton(right_btns, icon='stop', text='停止',
+                                    command=self._stop_test, style='Danger.TButton')
+        self.stop_btn.pack(side=tk.LEFT)
+        self.stop_btn.configure(state=tk.DISABLED)
+        
+        # 进度条
+        progress_frame = ttk.Frame(parent)
+        progress_frame.pack(fill=tk.X, pady=(0, 8))
+        
+        self.progress = AnimatedProgressBar(progress_frame)
+        self.progress.pack(fill=tk.X)
+        
+        # 状态文本
         status_frame = ttk.Frame(parent)
-        status_frame.pack(fill=tk.X, pady=(0, 5))
+        status_frame.pack(fill=tk.X, pady=(0, 8))
         
         self.status_var = tk.StringVar(value="就绪")
-        ttk.Label(status_frame, textvariable=self.status_var).pack(side=tk.LEFT)
-        
-        self.result_var = tk.StringVar(value="")
-        ttk.Label(status_frame, textvariable=self.result_var, 
-                  font=('微软雅黑', 10, 'bold')).pack(side=tk.RIGHT)
+        self.status_label = ttk.Label(status_frame, textvariable=self.status_var,
+                                       style='Status.TLabel')
+        self.status_label.pack(side=tk.LEFT)
     
     def _build_output_section(self, parent):
         """输出日志区"""
-        output_frame = ttk.LabelFrame(parent, text="输出日志", padding="5")
+        output_frame = ttk.Frame(parent)
         output_frame.pack(fill=tk.BOTH, expand=True)
         
-        self.output_text = scrolledtext.ScrolledText(
-            output_frame, 
-            font=(self.config.gui.get_font(), self.config.gui.font_size - 1),
-            wrap=tk.WORD, state=tk.DISABLED)
-        self.output_text.pack(fill=tk.BOTH, expand=True)
+        # 标题栏
+        header = ttk.Frame(output_frame)
+        header.pack(fill=tk.X, pady=(0, 6))
+        ttk.Label(header, text="📋 输出日志", style='Card.TLabel',
+                  font=('微软雅黑', 10, 'bold')).pack(side=tk.LEFT)
+        IconButton(header, icon='clear', text='清空',
+                   command=self._clear_output).pack(side=tk.RIGHT)
         
-        self.output_text.tag_configure('pass', foreground='green')
-        self.output_text.tag_configure('fail', foreground='red')
-        self.output_text.tag_configure('info', foreground='blue')
-        self.output_text.tag_configure('error', foreground='red', 
-            font=(self.config.gui.get_font(), self.config.gui.font_size - 1, 'bold'))
+        # 输出文本框
+        text_container = ttk.Frame(output_frame)
+        text_container.pack(fill=tk.BOTH, expand=True)
+        
+        self.output_text = create_styled_text(
+            text_container,
+            font=(self.config.gui.get_font(), self.config.gui.font_size - 1),
+            wrap=tk.WORD, state=tk.DISABLED
+        )
+        output_scroll = ttk.Scrollbar(text_container, orient=tk.VERTICAL,
+                                       command=self.output_text.yview)
+        self.output_text.configure(yscrollcommand=output_scroll.set)
+        
+        self.output_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        output_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        # 设置标签样式
+        self._setup_output_tags()
     
     # ========== 事件处理 ==========
     
@@ -128,7 +230,16 @@ class TestTab(BaseTab, OutputMixin):
         if default_path.exists():
             self.project_var.set(str(default_path))
             self.app.project_dir = default_path
+            self.app.update_project_status(default_path)
+            self._update_compiler_info()
         self.refresh_lists()
+    
+    def _update_compiler_info(self):
+        """更新编译器信息"""
+        if self.app.project_dir:
+            tester = CompilerTester(self.app.project_dir, self.test_dir)
+            lang = tester.get_compiler_language().upper()
+            self.compiler_info.configure(text=f"🔧 检测到 {lang} 编译器")
     
     def _browse_project(self):
         """浏览选择项目目录"""
@@ -136,16 +247,19 @@ class TestTab(BaseTab, OutputMixin):
         if path:
             self.project_var.set(path)
             self.app.project_dir = Path(path)
+            self.app.update_project_status(Path(path))
+            self._update_compiler_info()
     
     def _compile_project(self):
-        """编译项目（根据config.json自动选择语言）"""
+        """编译项目"""
         if not self.app.project_dir:
             messagebox.showerror("错误", "请先选择项目目录")
             return
         
         self.tester = CompilerTester(self.app.project_dir, self.test_dir)
         lang = self.tester.get_compiler_language().upper()
-        self._log(f"正在编译{lang}项目...", 'info')
+        self._log(f"⚙️ 正在编译 {lang} 项目...", 'info')
+        self.status_var.set(f"正在编译 {lang} 项目...")
         
         def compile_task():
             success, msg = self.tester.compile_project()
@@ -161,12 +275,15 @@ class TestTab(BaseTab, OutputMixin):
         testfiles_dir = self.test_dir / "testfiles"
         libs = TestDiscovery.discover_test_libs(testfiles_dir)
         
+        total_cases = 0
         for lib in libs:
             rel_path = lib.relative_to(testfiles_dir)
             cases = TestDiscovery.discover_in_dir(lib)
+            total_cases += len(cases)
             self.lib_listbox.insert(tk.END, f"{rel_path} ({len(cases)})")
         
-        self._log(f"发现 {len(libs)} 个测试库", 'info')
+        self.lib_count_label.configure(text=f"{len(libs)} 个库")
+        self._log(f"📚 发现 {len(libs)} 个测试库，共 {total_cases} 个用例", 'info')
     
     def _on_lib_select(self, event):
         """选择测试库时更新用例列表"""
@@ -181,6 +298,8 @@ class TestTab(BaseTab, OutputMixin):
         cases = TestDiscovery.discover_in_dir(self.current_lib_path)
         for case in cases:
             self.case_listbox.insert(tk.END, case.name)
+        
+        self.case_count_label.configure(text=f"{len(cases)} 个用例")
     
     def _select_all_cases(self):
         """全选测试用例"""
@@ -233,7 +352,7 @@ class TestTab(BaseTab, OutputMixin):
         self._run_tests(all_cases, f"运行所有测试 ({len(all_cases)} 个)")
     
     def _run_tests(self, cases: list, title: str):
-        """运行测试（每次都重新编译，并行执行）"""
+        """运行测试"""
         if self.is_running:
             messagebox.showwarning("提示", "测试正在运行中")
             return
@@ -243,19 +362,19 @@ class TestTab(BaseTab, OutputMixin):
             return
         
         self.is_running = True
-        self.stop_btn.config(state=tk.NORMAL)
+        self.stop_btn.configure(state=tk.NORMAL)
         self._clear_output()
-        self.progress_var.set(0)
-        self.result_var.set("")
+        self.progress.set(0)
+        self.result_label.configure(text="")
         
         max_workers = self.config.parallel.max_workers
-        self._log(f"=== {title} (并行: {max_workers} 线程) ===", 'info')
+        self._log(f"🚀 {title}", 'header')
+        self._log(f"   并行线程: {max_workers}", 'dim')
         
         def test_task():
-            # 每次运行测试前都重新编译
             self.tester = CompilerTester(self.app.project_dir, self.test_dir)
             lang = self.tester.get_compiler_language().upper()
-            self.message_queue.put(('status', f"正在编译{lang}项目..."))
+            self.message_queue.put(('status', f"正在编译 {lang} 项目..."))
             
             success, msg = self.tester.compile_project()
             if not success:
@@ -282,7 +401,7 @@ class TestTab(BaseTab, OutputMixin):
                     failed += 1
                     self.message_queue.put(('result', case.name, result, False))
                 
-                self.message_queue.put(('progress', progress, f"已完成: {passed + failed}/{len(cases)}"))
+                self.message_queue.put(('progress', progress, f"{passed + failed}/{len(cases)}"))
             
             try:
                 self.tester.test_parallel(cases, max_workers, callback=on_result)
@@ -312,11 +431,13 @@ class TestTab(BaseTab, OutputMixin):
                 if msg[0] == 'status':
                     _, status = msg
                     self.status_var.set(status)
-                    self._log(status, 'info')
+                    self._log(f"⏳ {status}", 'info')
                 
                 elif msg[0] == 'compile_done':
                     _, success, text = msg
-                    self._log(f"{'✓' if success else '✗'} {text}", 'pass' if success else 'error')
+                    icon = '✓' if success else '✗'
+                    self._log(f"{icon} {text}", 'pass' if success else 'error')
+                    self.status_var.set("编译完成，开始测试...")
                 
                 elif msg[0] == 'compile_failed':
                     _, error_msg = msg
@@ -325,8 +446,8 @@ class TestTab(BaseTab, OutputMixin):
                 
                 elif msg[0] == 'progress':
                     _, progress, status = msg
-                    self.progress_var.set(progress)
-                    self.status_var.set(status)
+                    self.progress.set(progress)
+                    self.status_var.set(f"测试中... {status}")
                 
                 elif msg[0] == 'result':
                     _, name, result, passed = msg
@@ -352,24 +473,28 @@ class TestTab(BaseTab, OutputMixin):
                 
                 elif msg[0] == 'stopped':
                     _, passed, failed = msg
-                    self._log("测试已停止", 'info')
+                    self._log("⏹ 测试已停止", 'warning')
                     self._finish_test(passed, failed, stopped=True)
                 
-        except queue.Empty:
+        except:
             pass
     
     def _finish_test(self, passed: int, failed: int, stopped: bool = False):
         """完成测试"""
         self.is_running = False
-        self.stop_btn.config(state=tk.DISABLED)
-        self.progress_var.set(100)
+        self.stop_btn.configure(state=tk.DISABLED)
+        self.progress.set(100)
         
         total = passed + failed
         self.status_var.set("已停止" if stopped else "完成")
         
-        if failed == 0:
-            self.result_var.set(f"✓ 全部通过 ({passed}/{total})")
-            self._log(f"\n=== 结果: {passed}/{total} 通过 ===", 'pass')
+        if failed == 0 and total > 0:
+            self.result_label.configure(text=f"✓ 全部通过 ({passed}/{total})", 
+                                         style='Success.TLabel')
+            self._log(f"\n🎉 全部通过 {passed}/{total}", 'pass')
+        elif total > 0:
+            self.result_label.configure(text=f"✗ {failed} 失败 ({passed}/{total})",
+                                         style='Error.TLabel')
+            self._log(f"\n📊 结果: {passed} 通过, {failed} 失败", 'fail')
         else:
-            self.result_var.set(f"✗ {failed} 个失败 ({passed}/{total})")
-            self._log(f"\n=== 结果: {passed} 通过, {failed} 失败 ===", 'fail')
+            self.result_label.configure(text="无测试运行", style='Status.TLabel')

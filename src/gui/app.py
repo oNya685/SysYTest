@@ -10,6 +10,7 @@ from ..config import get_config
 from .theme import apply_modern_theme, COLORS
 from .test_tab import TestTab
 from .editor_tab import EditorTab
+from .agent_tab import AgentTab
 
 
 class TestApp:
@@ -38,6 +39,7 @@ class TestApp:
         # 标签页引用
         self.test_tab: Optional[TestTab] = None
         self.editor_tab: Optional[EditorTab] = None
+        self.agent_tab: Optional[AgentTab] = None
         
         # 构建界面
         self._build_ui()
@@ -84,6 +86,12 @@ class TestApp:
         self.notebook.add(editor_frame, text="  ✏️ 用例编写  ")
         self.editor_tab = EditorTab(editor_frame, self)
         self.editor_tab.build()
+        
+        # 标签页3: AI 生成
+        agent_frame = ttk.Frame(self.notebook)
+        self.notebook.add(agent_frame, text="  🤖 AI 生成  ")
+        self.agent_tab = AgentTab(agent_frame, self)
+        self.agent_tab.build()
         
         # 状态栏
         self._build_statusbar(main_container)
@@ -154,6 +162,8 @@ class TestApp:
         """处理消息队列"""
         if self.test_tab:
             self.test_tab.process_queue()
+        if self.agent_tab:
+            self.agent_tab.process_queue()
         self.root.after(50, self._process_queue)
     
     def run(self):

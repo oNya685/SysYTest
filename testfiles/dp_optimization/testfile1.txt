@@ -1,0 +1,79 @@
+const int N = 5010;
+
+int f[N];
+int t[N];
+int c[N];
+int n;
+int S;
+int q[N];
+int l;
+int r;
+
+int main() {
+    n = getint();
+    S = getint();
+    
+    int i;
+    for (i = 1; i <= n; i = i + 1) {
+        t[i] = getint();
+        c[i] = getint();
+        t[i] = t[i] + t[i - 1];
+        c[i] = c[i] + c[i - 1];
+    }
+    
+    // 初始化f数组为大数
+    for (i = 0; i <= n; i = i + 1) {
+        f[i] = 1000000000;
+    }
+    f[0] = 0;
+    
+    l = 1;
+    r = 1;
+    q[1] = 0;
+    
+    for (i = 1; i <= n; i = i + 1) {
+        int cond1;
+        int cond2;
+        
+        // while (l < r && f[q[l+1]] - f[q[l]] <= (S + t[i]) * (c[q[l+1]] - c[q[l]]))
+        for (cond1 = 1; cond1 == 1; ) {
+            if (l >= r) {
+                cond1 = 0;
+            } else {
+                int next_l = l + 1;
+                int diff_f = f[q[next_l]] - f[q[l]];
+                int diff_c = c[q[next_l]] - c[q[l]];
+                int right_val = (S + t[i]) * diff_c;
+                if (diff_f <= right_val) {
+                    l = l + 1;
+                } else {
+                    cond1 = 0;
+                }
+            }
+        }
+        
+        f[i] = f[q[l]] + t[i] * c[i] + S * c[n] - c[q[l]] * (S + t[i]);
+        
+        // while (l < r && (f[i] - f[q[r]]) * (c[q[r]] - c[q[r-1]]) <= (f[q[r]] - f[q[r-1]]) * (c[i] - c[q[r]]))
+        for (cond2 = 1; cond2 == 1; ) {
+            if (l >= r) {
+                cond2 = 0;
+            } else {
+                int left_val = (f[i] - f[q[r]]) * (c[q[r]] - c[q[r - 1]]);
+                int right_val = (f[q[r]] - f[q[r - 1]]) * (c[i] - c[q[r]]);
+                if (left_val <= right_val) {
+                    r = r - 1;
+                } else {
+                    cond2 = 0;
+                }
+            }
+        }
+        
+        r = r + 1;
+        q[r] = i;
+    }
+    
+    printf("%d\n", f[n]);
+    
+    return 0;
+}

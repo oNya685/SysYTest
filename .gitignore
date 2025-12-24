@@ -41,6 +41,9 @@ tmp_test.exe
 *.log
 .tmp/
 
+# Agent 配置（包含 API Key）
+agent_config.json
+
 # 测试产物 (运行时生成)
 input.txt
 InstructionStatistics.txt

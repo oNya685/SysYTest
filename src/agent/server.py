@@ -135,7 +135,8 @@ class SysYToolServer:
         
         self.current_testfile = self.work_dir / "testfile.txt"
         try:
-            self.current_testfile.write_text(content, encoding='utf-8', newline='\n')
+            with open(self.current_testfile, "w", encoding="utf-8", newline="\n") as f:
+                f.write(content)
             lines = len(content.strip().split('\n'))
             return ToolResult(True, f"✓ 已生成 testfile.txt ({lines} 行)")
         except Exception as e:
@@ -148,7 +149,8 @@ class SysYToolServer:
         if not content.strip():
             # 空输入
             try:
-                self.current_input.write_text("", encoding='utf-8', newline='\n')
+                with open(self.current_input, "w", encoding="utf-8", newline="\n") as f:
+                    f.write("")
                 return ToolResult(True, "✓ 已生成 input.txt (无输入)")
             except Exception as e:
                 return ToolResult(False, f"写入文件失败: {e}")
@@ -172,7 +174,8 @@ class SysYToolServer:
         formatted_content = '\n'.join(str(n) for n in integers)
         
         try:
-            self.current_input.write_text(formatted_content, encoding='utf-8', newline='\n')
+            with open(self.current_input, "w", encoding="utf-8", newline="\n") as f:
+                f.write(formatted_content)
             return ToolResult(True, f"✓ 已生成 input.txt ({len(integers)} 个整数，每行一个)")
         except Exception as e:
             return ToolResult(False, f"写入文件失败: {e}")
@@ -194,7 +197,7 @@ class SysYToolServer:
         try:
             cmd = [self.java_cmd, "-jar", str(self.compiler_jar)]
             result = subprocess.run(
-                cmd, capture_output=True, text=True,
+                cmd, capture_output=True, text=True, errors="replace",
                 timeout=30, cwd=str(self.work_dir)
             )
             
@@ -226,7 +229,7 @@ class SysYToolServer:
             
             mars_cmd = [self.java_cmd, "-jar", str(self.mars_jar), "nc", str(mips_path)]
             mars_result = subprocess.run(
-                mars_cmd, input=input_data, capture_output=True, text=True,
+                mars_cmd, input=input_data, capture_output=True, text=True, errors="replace",
                 timeout=10, cwd=str(self.work_dir)
             )
             
@@ -245,16 +248,17 @@ class SysYToolServer:
             
             source_code = self.current_testfile.read_text(encoding='utf-8')
             full_code = self.c_header + source_code
-            tmp_src.write_text(full_code, encoding='utf-8', newline='\n')
+            with open(tmp_src, "w", encoding="utf-8", newline="\n") as f:
+                f.write(full_code)
             
             compile_result = subprocess.run(
                 [self.gcc_cmd, str(tmp_src), "-o", str(tmp_exe)],
-                capture_output=True, text=True, timeout=30
+                capture_output=True, text=True, errors="replace", timeout=30
             )
             
             if compile_result.returncode == 0:
                 run_result = subprocess.run(
-                    [str(tmp_exe)], input=input_data, capture_output=True, text=True,
+                    [str(tmp_exe)], input=input_data, capture_output=True, text=True, errors="replace",
                     timeout=10
                 )
                 gcc_output = run_result.stdout
@@ -308,13 +312,15 @@ class SysYToolServer:
         # 保存 testfile
         dest_testfile = lib_path / f"testfile{test_number}.txt"
         content = self.current_testfile.read_text(encoding='utf-8')
-        dest_testfile.write_text(content, encoding='utf-8', newline='\n')
+        with open(dest_testfile, "w", encoding="utf-8", newline="\n") as f:
+            f.write(content)
         
         # 保存 input
         if self.current_input and self.current_input.exists():
             dest_input = lib_path / f"input{test_number}.txt"
             input_content = self.current_input.read_text(encoding='utf-8')
-            dest_input.write_text(input_content, encoding='utf-8', newline='\n')
+            with open(dest_input, "w", encoding="utf-8", newline="\n") as f:
+                f.write(input_content)
         
         return ToolResult(True, f"✓ 已保存到 {lib_name}/testfile{test_number}.txt")
     

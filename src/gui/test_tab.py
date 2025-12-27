@@ -4,9 +4,11 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from pathlib import Path
+from datetime import datetime
 from typing import Optional, TYPE_CHECKING
 import threading
 import queue
+import subprocess
 
 from .base import BaseTab, OutputMixin
 from .theme import COLORS, create_styled_listbox, create_styled_text
@@ -27,6 +29,7 @@ class TestTab(BaseTab, OutputMixin):
         self.is_running = False
         self.message_queue = queue.Queue()
         self.current_lib_path: Optional[Path] = None
+        self.case_menu: Optional[tk.Menu] = None
     
     def build(self):
         """构建测试运行标签页"""
@@ -123,6 +126,8 @@ class TestTab(BaseTab, OutputMixin):
                   font=('微软雅黑', 10, 'bold')).pack(side=tk.LEFT)
         self.case_count_label = ttk.Label(right_header, text="", style='Status.TLabel')
         self.case_count_label.pack(side=tk.RIGHT)
+        IconButton(right_header, text='记事本打开',
+                   command=self._open_selected_testfile_in_notepad).pack(side=tk.RIGHT, padx=(0, 6))
         
         # 列表框容器
         case_container = ttk.Frame(right_frame)
@@ -138,6 +143,9 @@ class TestTab(BaseTab, OutputMixin):
         
         self.case_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         case_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        self.case_listbox.bind('<Double-Button-1>', lambda e: self._open_selected_testfile_in_notepad())
+        self.case_listbox.bind('<Button-3>', self._show_case_context_menu)
 
     def _build_control_section(self, parent):
         """控制区"""
@@ -200,6 +208,8 @@ class TestTab(BaseTab, OutputMixin):
         header.pack(fill=tk.X, pady=(0, 6))
         ttk.Label(header, text="📋 输出日志", style='Card.TLabel',
                   font=('微软雅黑', 10, 'bold')).pack(side=tk.LEFT)
+        IconButton(header, icon='save', text='导出',
+                   command=self._export_log).pack(side=tk.RIGHT, padx=(0, 4))
         IconButton(header, icon='clear', text='清空',
                    command=self._clear_output).pack(side=tk.RIGHT)
         
@@ -221,6 +231,33 @@ class TestTab(BaseTab, OutputMixin):
         
         # 设置标签样式
         self._setup_output_tags()
+    
+    def _export_log(self):
+        content = self.output_text.get("1.0", tk.END)
+        if not content.strip():
+            messagebox.showinfo("提示", "当前没有可导出的日志")
+            return
+        
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        default_name = f"log_{ts}.txt"
+        
+        file_path = filedialog.asksaveasfilename(
+            title="导出日志",
+            defaultextension=".txt",
+            initialfile=default_name,
+            filetypes=[("Text", "*.txt"), ("All Files", "*.*")]
+        )
+        if not file_path:
+            return
+        
+        try:
+            with open(file_path, "w", encoding="utf-8", newline="\n") as f:
+                f.write(content)
+        except Exception as e:
+            messagebox.showerror("错误", f"导出失败: {e}")
+            return
+        
+        self._log(f"✓ 已导出日志: {file_path}", "pass")
     
     # ========== 事件处理 ==========
     
@@ -308,6 +345,74 @@ class TestTab(BaseTab, OutputMixin):
     def _get_current_lib_path(self) -> Optional[Path]:
         """获取当前测试库路径"""
         return self.current_lib_path
+    
+    def _get_selected_case(self):
+        lib_path = self._get_current_lib_path()
+        if not lib_path:
+            return None
+        
+        selection = self.case_listbox.curselection()
+        if not selection:
+            return None
+        
+        all_cases = TestDiscovery.discover_in_dir(lib_path)
+        idx = selection[0]
+        if idx < 0 or idx >= len(all_cases):
+            return None
+        
+        return all_cases[idx]
+    
+    def _open_in_notepad(self, file_path: Path):
+        if not file_path.exists():
+            messagebox.showerror("错误", f"文件不存在: {file_path}")
+            return
+        
+        try:
+            subprocess.Popen(["notepad.exe", str(file_path)])
+        except Exception as e:
+            messagebox.showerror("错误", f"打开失败: {e}")
+    
+    def _open_selected_testfile_in_notepad(self):
+        case = self._get_selected_case()
+        if not case:
+            messagebox.showinfo("提示", "请先选择一个测试用例")
+            return
+        self._open_in_notepad(case.testfile)
+    
+    def _open_selected_input_in_notepad(self):
+        case = self._get_selected_case()
+        if not case:
+            messagebox.showinfo("提示", "请先选择一个测试用例")
+            return
+        if not case.input_file:
+            messagebox.showinfo("提示", "该用例没有 input 文件")
+            return
+        self._open_in_notepad(case.input_file)
+    
+    def _show_case_context_menu(self, event):
+        idx = self.case_listbox.nearest(event.y)
+        if idx < 0:
+            return
+        
+        current = self.case_listbox.curselection()
+        if not current or idx not in current:
+            self.case_listbox.selection_clear(0, tk.END)
+            self.case_listbox.selection_set(idx)
+            self.case_listbox.activate(idx)
+        
+        if self.case_menu is None:
+            self.case_menu = tk.Menu(self.parent, tearoff=0)
+        
+        self.case_menu.delete(0, tk.END)
+        self.case_menu.add_command(label="用记事本打开 testfile", command=self._open_selected_testfile_in_notepad)
+        case = self._get_selected_case()
+        if case and case.input_file:
+            self.case_menu.add_command(label="用记事本打开 input", command=self._open_selected_input_in_notepad)
+        
+        try:
+            self.case_menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.case_menu.grab_release()
 
     # ========== 测试运行 ==========
     

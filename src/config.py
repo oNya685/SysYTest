@@ -12,10 +12,12 @@ import tkinter.font as tkfont
 class TimeoutConfig:
     """超时配置"""
     compile: int = 60
-    mars: int = 5
+    mars: int = 10
     gcc_compile: int = 30
     gcc_run: int = 120
     java_compile: int = 120
+    cmake_configure: int = 120
+    cmake_build: int = 600
 
 
 @dataclass
@@ -29,24 +31,43 @@ class ToolsConfig:
     """工具路径配置"""
     jdk_home: str = ""       # JDK安装目录，空则用PATH
     gcc_path: str = ""       # gcc/g++可执行文件路径
+    cmake_path: str = ""
+    
+    def _normalize(self, value) -> str:
+        if value is None:
+            return ""
+        if not isinstance(value, str):
+            value = str(value)
+        value = value.strip()
+        if value.lower() in ("none", "null", "~"):
+            return ""
+        return value
     
     def get_java(self) -> str:
-        if self.jdk_home:
-            return str(Path(self.jdk_home) / "bin" / "java")
+        jdk_home = self._normalize(self.jdk_home)
+        if jdk_home:
+            return str(Path(jdk_home) / "bin" / "java")
         return "java"
     
     def get_javac(self) -> str:
-        if self.jdk_home:
-            return str(Path(self.jdk_home) / "bin" / "javac")
+        jdk_home = self._normalize(self.jdk_home)
+        if jdk_home:
+            return str(Path(jdk_home) / "bin" / "javac")
         return "javac"
     
     def get_jar(self) -> str:
-        if self.jdk_home:
-            return str(Path(self.jdk_home) / "bin" / "jar")
+        jdk_home = self._normalize(self.jdk_home)
+        if jdk_home:
+            return str(Path(jdk_home) / "bin" / "jar")
         return "jar"
     
     def get_gcc(self) -> str:
-        return self.gcc_path if self.gcc_path else "g++"
+        gcc_path = self._normalize(self.gcc_path)
+        return gcc_path if gcc_path else "g++"
+    
+    def get_cmake(self) -> str:
+        cmake_path = self._normalize(self.cmake_path)
+        return cmake_path if cmake_path else "cmake"
 
 
 @dataclass
@@ -117,7 +138,9 @@ class Config:
             mars=timeout_data.get('mars', 5),
             gcc_compile=timeout_data.get('gcc_compile', 30),
             gcc_run=timeout_data.get('gcc_run', 120),
-            java_compile=timeout_data.get('java_compile', 120)
+            java_compile=timeout_data.get('java_compile', 120),
+            cmake_configure=timeout_data.get('cmake_configure', timeout_data.get('gcc_compile', 30)),
+            cmake_build=timeout_data.get('cmake_build', max(timeout_data.get('gcc_compile', 30), 300))
         )
         
         gui_data = data.get('gui', {})
@@ -140,7 +163,8 @@ class Config:
         tools_data = data.get('tools', {})
         tools = ToolsConfig(
             jdk_home=tools_data.get('jdk_home', ''),
-            gcc_path=tools_data.get('gcc_path', '')
+            gcc_path=tools_data.get('gcc_path', ''),
+            cmake_path=tools_data.get('cmake_path', '')
         )
         
         return cls(

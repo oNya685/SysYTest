@@ -4,6 +4,8 @@
 import subprocess
 import shutil
 import json
+import os
+import hashlib
 from pathlib import Path
 from typing import Optional, Tuple, List
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -118,7 +120,7 @@ class CompilerTester:
             # 1. 编译 Java 文件
             cmd = [tools.get_javac(), "-encoding", "UTF-8", "-d", str(build_dir)] + [str(f) for f in java_files]
             result = subprocess.run(
-                cmd, capture_output=True, text=True,
+                cmd, capture_output=True, text=True, errors="replace",
                 timeout=self.config.timeout.java_compile
             )
             if result.returncode != 0:
@@ -130,7 +132,7 @@ class CompilerTester:
             
             # 3. 打包为 jar
             jar_cmd = [tools.get_jar(), "cfm", str(self.compiler_jar), str(manifest_path), "-C", str(build_dir), "."]
-            jar_result = subprocess.run(jar_cmd, capture_output=True, text=True, timeout=30)
+            jar_result = subprocess.run(jar_cmd, capture_output=True, text=True, errors="replace", timeout=30)
             if jar_result.returncode != 0:
                 return False, f"打包jar失败:\n{jar_result.stderr}"
             
@@ -149,6 +151,225 @@ class CompilerTester:
             return False, f"找不到源码目录: {self.project_src_dir}"
         
         lang = self.compiler_config.language
+        tools = self.config.tools
+        cmake_lists = None
+        for p in [self.project_dir / "CMakeLists.txt", self.project_src_dir / "CMakeLists.txt"]:
+            if p.exists():
+                cmake_lists = p
+                break
+        
+        if cmake_lists is not None:
+            self.work_dir.mkdir(parents=True, exist_ok=True)
+            project_key = hashlib.md5(str(self.project_dir).encode("utf-8")).hexdigest()[:8]
+            build_dir = self.work_dir / f"cmake_build_{project_key}"
+            build_dir.mkdir(parents=True, exist_ok=True)
+            cache_path = build_dir / "CMakeCache.txt"
+            
+            cmake = tools.get_cmake()
+            cmake_exists = False
+            try:
+                cmake_path = Path(cmake)
+                if cmake_path.is_absolute() or (("\\" in cmake) or ("/" in cmake)):
+                    cmake_exists = cmake_path.exists()
+                else:
+                    cmake_exists = shutil.which(cmake) is not None
+            except Exception:
+                cmake_exists = False
+            
+            if not cmake_exists:
+                return False, f"找不到命令: {cmake}，请确保已安装CMake并配置PATH或在config.yaml中指定路径"
+            
+            configured_gcc_path = getattr(tools, "gcc_path", "")
+            if hasattr(tools, "_normalize"):
+                configured_gcc_path = tools._normalize(configured_gcc_path)
+            cxx = tools.get_gcc()
+            use_cxx_compiler = bool(configured_gcc_path)
+            cxx_for_cmake = configured_gcc_path
+            
+            guessed_c_compiler = None
+            if use_cxx_compiler:
+                try:
+                    cxx_path = Path(cxx_for_cmake)
+                    if cxx_path.is_absolute() and cxx_path.exists():
+                        lower_name = cxx_path.name.lower()
+                        if lower_name in ("g++.exe", "g++"):
+                            gcc_name = "gcc.exe" if lower_name.endswith(".exe") else "gcc"
+                            gcc_path = cxx_path.with_name(gcc_name)
+                            if gcc_path.exists():
+                                guessed_c_compiler = str(gcc_path)
+                except Exception:
+                    guessed_c_compiler = None
+            
+            if guessed_c_compiler is None and use_cxx_compiler and cxx_for_cmake.lower() in ("g++", "g++.exe"):
+                guessed_c_compiler = "gcc"
+            
+            generator = None
+            if not cache_path.exists() and shutil.which("ninja") is not None:
+                generator = "Ninja"
+            
+            configure_cmd = [cmake]
+            if generator:
+                configure_cmd += ["-G", generator]
+            configure_cmd += ["-S", str(cmake_lists.parent), "-B", str(build_dir), "-DCMAKE_BUILD_TYPE=Release"]
+            if use_cxx_compiler:
+                configure_cmd.append(f"-DCMAKE_CXX_COMPILER={cxx_for_cmake}")
+            if guessed_c_compiler:
+                configure_cmd.append(f"-DCMAKE_C_COMPILER={guessed_c_compiler}")
+            
+            add_utf8_flag = False
+            if os.name == "nt":
+                if not use_cxx_compiler:
+                    add_utf8_flag = True
+                else:
+                    try:
+                        compiler_name = Path(cxx_for_cmake).name.lower()
+                    except Exception:
+                        compiler_name = str(cxx_for_cmake).lower()
+                    if compiler_name in ("cl.exe", "cl", "clang-cl.exe", "clang-cl"):
+                        add_utf8_flag = True
+            
+            if add_utf8_flag:
+                utf8_flags = "/utf-8 /source-charset:utf-8 /execution-charset:utf-8"
+                configure_cmd.append(f"-DCMAKE_C_FLAGS={utf8_flags}")
+                configure_cmd.append(f"-DCMAKE_CXX_FLAGS={utf8_flags}")
+                configure_cmd.append(f"-DCMAKE_C_FLAGS_RELEASE={utf8_flags}")
+                configure_cmd.append(f"-DCMAKE_CXX_FLAGS_RELEASE={utf8_flags}")
+            
+            try:
+                env = None
+                if add_utf8_flag and os.name == "nt":
+                    env = os.environ.copy()
+                    existing_cl = env.get("CL", "")
+                    if "/utf-8" not in existing_cl.lower():
+                        env["CL"] = (existing_cl + f" {utf8_flags}").strip() if existing_cl else utf8_flags
+                
+                if not cache_path.exists():
+                    configure_result = subprocess.run(
+                        configure_cmd, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                        timeout=self.config.timeout.cmake_configure, env=env
+                    )
+                    if configure_result.returncode != 0:
+                        combined = f"{configure_result.stderr}\n{configure_result.stdout}"
+                        combined_lower = combined.lower()
+                        needs_compiler = (
+                            "no cmake_c_compiler could be found" in combined_lower
+                            or "no cmake_cxx_compiler could be found" in combined_lower
+                            or "the c compiler identification is unknown" in combined_lower
+                            or "the cxx compiler identification is unknown" in combined_lower
+                        )
+                        if os.name == "nt" and needs_compiler:
+                            fallback_cxx = configured_gcc_path if configured_gcc_path else cxx
+                            fallback_cc = None
+                            try:
+                                cxx_path = Path(fallback_cxx)
+                                cxx_ok = cxx_path.exists() if (cxx_path.is_absolute() or (("\\" in fallback_cxx) or ("/" in fallback_cxx))) else (shutil.which(fallback_cxx) is not None)
+                            except Exception:
+                                cxx_ok = False
+                            
+                            if not cxx_ok:
+                                return False, (
+                                    "CMake配置失败: 未找到可用的 C/C++ 编译器。\n"
+                                    "当前环境下 CMake 也无法自动定位 MSVC（通常是未安装 VS 的 C++ 工作负载）。\n\n"
+                                    f"{combined}"
+                                )
+                            
+                            try:
+                                cxx_path = Path(fallback_cxx)
+                                if cxx_path.is_absolute() and cxx_path.exists():
+                                    lower_name = cxx_path.name.lower()
+                                    if lower_name in ("g++.exe", "g++"):
+                                        gcc_name = "gcc.exe" if lower_name.endswith(".exe") else "gcc"
+                                        gcc_path = cxx_path.with_name(gcc_name)
+                                        if gcc_path.exists():
+                                            fallback_cc = str(gcc_path)
+                            except Exception:
+                                fallback_cc = None
+                            
+                            if fallback_cc is None and str(fallback_cxx).lower() in ("g++", "g++.exe"):
+                                fallback_cc = "gcc"
+                            
+                            retry_generator = None
+                            if shutil.which("ninja") is not None:
+                                retry_generator = "Ninja"
+                            elif shutil.which("mingw32-make") is not None or shutil.which("make") is not None:
+                                retry_generator = "MinGW Makefiles"
+                            
+                            if retry_generator is None:
+                                return False, (
+                                    "CMake配置失败: 未找到可用的 C/C++ 编译器（MSVC 未就绪），且未找到可用的构建工具（ninja/make）。\n"
+                                    "请安装 Visual Studio 的 “使用 C++ 的桌面开发” 工作负载，或安装 Ninja/MinGW 并确保 g++ 在 PATH。\n\n"
+                                    f"{combined}"
+                                )
+                            
+                            try:
+                                if build_dir.exists():
+                                    shutil.rmtree(build_dir)
+                            except Exception:
+                                pass
+                            build_dir.mkdir(parents=True, exist_ok=True)
+                            cache_path = build_dir / "CMakeCache.txt"
+                            
+                            retry_configure_cmd = [
+                                cmake,
+                                "-G", retry_generator,
+                                "-S", str(cmake_lists.parent),
+                                "-B", str(build_dir),
+                                "-DCMAKE_BUILD_TYPE=Release",
+                                f"-DCMAKE_CXX_COMPILER={fallback_cxx}",
+                            ]
+                            if fallback_cc:
+                                retry_configure_cmd.append(f"-DCMAKE_C_COMPILER={fallback_cc}")
+                            
+                            retry_configure = subprocess.run(
+                                retry_configure_cmd, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                                timeout=self.config.timeout.cmake_configure
+                            )
+                            if retry_configure.returncode != 0:
+                                return False, f"CMake配置失败:\n{retry_configure.stderr}\n{retry_configure.stdout}"
+                            
+                        else:
+                            return False, f"CMake配置失败:\n{combined}"
+                
+                build_cmd = [cmake, "--build", str(build_dir), "--config", "Release"]
+                try:
+                    parallel = int(getattr(self.config.parallel, "max_workers", 0) or 0)
+                except Exception:
+                    parallel = 0
+                if parallel > 1:
+                    build_cmd += ["--parallel", str(parallel)]
+                build_result = subprocess.run(
+                    build_cmd, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                    timeout=self.config.timeout.cmake_build, env=env
+                )
+                if build_result.returncode != 0:
+                    return False, f"CMake构建失败:\n{build_result.stderr}\n{build_result.stdout}"
+                
+                exes = [
+                    p for p in build_dir.rglob("*.exe")
+                    if "CMakeFiles" not in p.parts and p.is_file()
+                ]
+                if not exes:
+                    return False, f"CMake构建完成但未找到可执行文件: {build_dir}"
+                
+                preferred = [p for p in exes if p.name.lower() in ("compiler.exe", "compiler")]
+                if preferred:
+                    chosen = preferred[0]
+                elif len(exes) == 1:
+                    chosen = exes[0]
+                else:
+                    chosen = max(exes, key=lambda p: p.stat().st_mtime)
+                
+                shutil.copy2(chosen, self.compiler_exe)
+                return True, f"[{lang.upper()}] CMake构建成功 -> {chosen.name}"
+            
+            except subprocess.TimeoutExpired:
+                return False, "编译超时"
+            except FileNotFoundError as e:
+                missing = e.filename if e.filename else cmake
+                return False, f"找不到命令: {missing}，请确保已安装CMake并配置PATH或在config.yaml中指定路径"
+            except Exception as e:
+                return False, str(e)
+        
         ext = ".c" if lang == "c" else ".cpp"
         source_files = list(self.project_src_dir.rglob(f"*{ext}"))
         
@@ -160,7 +381,6 @@ class CompilerTester:
             return False, f"找不到{lang.upper()}源文件"
         
         self.work_dir.mkdir(parents=True, exist_ok=True)
-        tools = self.config.tools
         gcc = tools.get_gcc()
         
         try:
@@ -170,7 +390,7 @@ class CompilerTester:
                 cmd.insert(1, "-std=c++17")
             
             result = subprocess.run(
-                cmd, capture_output=True, text=True,
+                cmd, capture_output=True, text=True, errors="replace",
                 timeout=self.config.timeout.gcc_compile
             )
             if result.returncode != 0:
@@ -192,7 +412,8 @@ class CompilerTester:
         
         # 写入 testfile.txt
         content = read_file_safe(source_file)
-        testfile_path.write_text(content, encoding='utf-8', newline='\n')
+        with open(testfile_path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(content)
         
         # 清理旧的 mips.txt
         if mips_path.exists():
@@ -213,7 +434,7 @@ class CompilerTester:
         
         try:
             result = subprocess.run(
-                cmd, capture_output=True, text=True,
+                cmd, capture_output=True, text=True, errors="replace",
                 timeout=self.config.timeout.compile, cwd=str(worker_dir)
             )
             if result.returncode != 0:
@@ -238,7 +459,7 @@ class CompilerTester:
         
         try:
             result = subprocess.run(
-                cmd, input=input_data, capture_output=True, text=True,
+                cmd, input=input_data, capture_output=True, text=True, errors="replace",
                 timeout=self.config.timeout.mars, cwd=str(worker_dir)
             )
             return result.stdout, ""
@@ -259,12 +480,13 @@ class CompilerTester:
         gcc = tools.get_gcc()
         
         try:
-            tmp_src.write_text(full_code, encoding='utf-8', newline='\n')
+            with open(tmp_src, "w", encoding="utf-8", newline="\n") as f:
+                f.write(full_code)
             
             # 编译
             compile_result = subprocess.run(
                 [gcc, str(tmp_src), "-o", str(tmp_exe)],
-                capture_output=True, text=True,
+                capture_output=True, text=True, errors="replace",
                 timeout=self.config.timeout.gcc_compile
             )
             
@@ -277,7 +499,7 @@ class CompilerTester:
                 input_data = read_file_safe(input_file)
             
             run_result = subprocess.run(
-                [str(tmp_exe)], input=input_data, capture_output=True, text=True,
+                [str(tmp_exe)], input=input_data, capture_output=True, text=True, errors="replace",
                 timeout=self.config.timeout.gcc_run
             )
             

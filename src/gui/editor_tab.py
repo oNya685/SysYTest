@@ -284,12 +284,14 @@ class EditorTab(BaseTab):
         
         # 保存testfile
         testfile_path = lib_path / f"testfile{num}.txt"
-        testfile_path.write_text(code, encoding='utf-8', newline='\n')
+        with open(testfile_path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(code)
         
         # 保存input
         input_data = self.input_text.get(1.0, tk.END).rstrip()
         input_path = lib_path / f"input{num}.txt"
-        input_path.write_text(input_data, encoding='utf-8', newline='\n')
+        with open(input_path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(input_data)
         
         self.editor_status_var.set(f"✓ 已保存: testfile{num}.txt")
         self.app.test_tab.refresh_lists()

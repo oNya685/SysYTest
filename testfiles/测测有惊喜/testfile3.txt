@@ -1,0 +1,14 @@
+int putstr = 100;
+int putch;
+void putint(int a) {
+	printf("%d", putstr);
+}
+
+int main() {
+	static int putstr = 1;
+	{
+		static int putch = 2;
+	}
+	putint(putch);
+	return 0;
+}

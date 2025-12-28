@@ -260,3 +260,13 @@ testfiles/
 在 GUI 中选择测试库后，在右侧用例列表中按住 Ctrl 多选，然后点击「运行选中」。
 
 <!-- AI 写测评机，拿 AI 生成的测试用例，测 AI 写的代码让 AI debug，新时代的原汤化原食 -->
+
+## 命令行模式
+
+只要指定 `--project` 参数就能在命令行环境下完成编译+测试，输出会边跑边打印，便于快速迭代：
+
+```bash
+python main.py --project path_to_src
+```
+
+运行过程中会先输出项目和编译信息，然后每个用例完成时即时打印 `PASS`/`FAIL` 以及进度，失败时还能显示实际/期望输出。请确保 `config.yaml` 中的 `mars_jar`、`jdk_home`、`gcc_path` 等路径配置正确，这样 GUI 和 CLI 会使用同一套工具链。

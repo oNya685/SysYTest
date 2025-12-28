@@ -5,7 +5,10 @@ import yaml
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List, Optional
-import tkinter.font as tkfont
+try:
+    import tkinter.font as tkfont
+except Exception:
+    tkfont = None
 
 
 @dataclass
@@ -85,12 +88,13 @@ class GuiConfig:
             return self._resolved_font
         
         try:
-            available = set(tkfont.families())
-            for font in self.font_family:
-                if font in available:
-                    self._resolved_font = font
-                    return font
-        except:
+            if tkfont is not None:
+                available = set(tkfont.families())
+                for font in self.font_family:
+                    if font in available:
+                        self._resolved_font = font
+                        return font
+        except Exception:
             pass
         
         # 默认回落

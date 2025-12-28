@@ -14,7 +14,7 @@ tools:
 # 超时设置 (秒)
 timeout:
   compile: 60          # 编译器编译超时
-  mars: 10             # Mars执行超时
+  mars: 20             # Mars执行超时
   gcc_compile: 30      # g++编译超时
   gcc_run: 120         # g++运行超时
   java_compile: 120    # Java项目编译超时

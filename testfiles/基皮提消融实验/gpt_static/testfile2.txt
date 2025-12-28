@@ -1,0 +1,33 @@
+int counter = 1000;
+
+int print_global() {
+    printf("global:%d\n", counter);
+    return 0;
+}
+
+int increment_global(int delta) {
+    counter = counter + delta;
+    print_global();
+    return counter;
+}
+
+int use_local(int step) {
+    static int counter = 0;
+    counter = counter + step;
+    printf("local:%d\n", counter);
+    return counter;
+}
+
+int main() {
+    print_global();
+    use_local(5);
+    print_global();
+    increment_global(17);
+    use_local(4);
+    print_global();
+    increment_global(-20);
+    use_local(1);
+    print_global();
+    return 0;
+}
+

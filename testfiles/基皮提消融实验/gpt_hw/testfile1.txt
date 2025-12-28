@@ -1,0 +1,97 @@
+const int K = 4;
+// 多个常量声明（包含一元正号）
+const int C1 = +1, C2 = 2;
+// 常量数组定义和初始化（初始化列表）
+const int CARR1[3] = {1, 2, 3};
+void fuck2(){
+    // 单个与多个静态变量声明
+    static int only_static;
+    static int sA = 0, sB = 0;
+    only_static = sA + sB;
+    return; // 无返回值的 return
+}
+void fuck(){
+}
+int main() {
+    // 1) 学号
+    printf("22371220\n");
+    fuck();
+    fuck2();
+    int x = getint();
+    int y = getint();
+    // 使用一元正号，不改变逻辑
+    int px = +x;
+    int py = +y;
+
+    int arr[4];
+    arr[0] = x;
+    arr[1] = y;
+    arr[2] = x + y;
+    arr[3] = x - y;
+
+    int s = 0, i = 0;
+    for (; ; i = i + 1) { 
+        if(i >= 4) break;
+        s = s + arr[i]; 
+    }
+    for(i=0;i<4;i=i+1);
+    for ( i = 0; i < 4; i=i+1){
+        continue;
+    }
+    for (;;)
+    {
+        break;
+    }
+    for (i=0;;)
+    {
+        break;
+    }
+    for (;i>0;)
+    {
+        break;
+    }
+    for (;;i=i+1)
+    {
+        break;
+    }
+    for (;i>0;i=i+1)
+    {
+        break;
+    }
+    for (i=0;;i=i+1)
+    {
+        break;
+    }
+    for (i=0;i>0;)
+    {
+        break;
+    }
+    // for 子句中的多个赋值示例（链式与逗号分隔，条件恒假，不执行体）
+    int j = 0;
+    // for (i = j = 0; i < 0; i = j = i + 1) {
+    //     // 不会进入
+    // }
+    for (i = 0, j = 0; i < 0; i = i + 1, j = j + 1) {
+        // 不会进入
+    }
+    i = 1;
+    if(!i){
+        printf("never\n");
+    }
+    int min;
+    if (x < y) { min = x; } else { min = y; }
+
+    // 其余 9 条打印
+    printf("%d\n", x);         // 2)
+    printf("%d\n", y);         // 3)
+    printf("%d\n", arr[2]);    // 4) x+y
+    printf("%d\n", arr[3]);    // 5) x-y
+    printf("%d\n", s);         // 6)
+    printf("%d\n", min);       // 7)
+    printf("%d\n", K);         // 8)
+    printf("%d\n", s % 10);    // 9)
+    printf("%d\n", (x * y) - (x / y)); // 10) 注意整除
+
+    return 0;
+}
+

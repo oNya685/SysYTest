@@ -1,0 +1,14 @@
+int func2() {
+    printf("func2 says hi\n");
+    return 7;
+}
+
+void func3() {
+    printf("func3 use func2 is %d\n", func2());
+}
+
+int main() {
+    func3();
+    return 0;
+}
+

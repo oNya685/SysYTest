@@ -1,0 +1,31 @@
+int alpha() {
+    static int shared = 0;
+    shared = shared + 2;
+    printf("alpha:%d\n", shared);
+    return shared;
+}
+
+int beta() {
+    static int shared = 100;
+    shared = shared - 3;
+    printf("beta:%d\n", shared);
+    return shared;
+}
+
+int gamma() {
+    static int shared = -5;
+    shared = shared * 2;
+    printf("gamma:%d\n", shared);
+    return shared;
+}
+
+int main() {
+    alpha();
+    beta();
+    gamma();
+    alpha();
+    beta();
+    gamma();
+    return 0;
+}
+

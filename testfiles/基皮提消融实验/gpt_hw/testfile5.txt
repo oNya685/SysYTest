@@ -1,0 +1,18 @@
+int main() {
+    int i = 0;
+    int h0 = 0; int h1 = 0; int h2 = 0; int h3 = 0; int h4 = 0;
+    int h5 = 0; int h6 = 0; int h7 = 0; int h8 = 0; int h9 = 0;
+    int h10 = 0; int h11 = 0; 
+    
+    int l0 = 1; int l1 = 2; int l2 = 3; int l3 = 4; int l4 = 5;
+    
+    for (; i < 1000000; i = i + 1) {
+        h0 = h0 + 1; h1 = h1 + 1; h2 = h2 + 1; h3 = h3 + 1; h4 = h4 + 1;
+        h5 = h5 + 1; h6 = h6 + 1; h7 = h7 + 1; h8 = h8 + 1; h9 = h9 + 1;
+        h10 = h10 + 1; h11 = h11 + 1;
+    }
+    
+    printf("%d", h0 + h1 + h2 + h3 + h4 + h5 + h6 + h7 + h8 + h9 + h10 + h11 + l0 + l1 + l2 + l3 + l4);
+    return 0;
+}
+

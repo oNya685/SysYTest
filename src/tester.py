@@ -42,8 +42,11 @@ class CompilerTester:
         self.project_dir = Path(project_dir).resolve()
         self.test_dir = Path(test_dir).resolve()
         
-        # Mars.jar 在 src/ 目录下
-        self.mars_jar = (Path(__file__).parent / "Mars.jar").resolve()
+        # Mars.jar 路径（优先使用配置，允许相对路径）
+        mars_path = Path(self.config.mars_jar)
+        if not mars_path.is_absolute():
+            mars_path = (self.test_dir / mars_path).resolve()
+        self.mars_jar = mars_path
         
         # 编译器项目源码目录
         self.project_src_dir = self.project_dir / "src"

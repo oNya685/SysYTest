@@ -36,6 +36,16 @@ YourCodesFolder/
 python main.py
 ```
 
+### 命令行模式
+
+指定 `--project` 参数可以在命令行环境下直接编译+测试，适合 CI/CD 或无 GUI 环境：
+
+```bash
+python main.py --project path_to_src
+```
+
+运行时会实时打印 `PASS`/`FAIL` 结果和进度，失败时显示实际/期望输出对比。
+
 ## 同步更新测试用例
 
 ### 从远程仓库获取最新测试用例
@@ -263,13 +273,3 @@ testfiles/
 可能是死循环，也可能是优化不够导致的 TLE，后者可以在 `config.yaml` 中增加 Mars 执行超时时间。
 
 <!-- AI 写测评机，拿 AI 生成的测试用例，测 AI 写的代码让 AI debug，新时代的原汤化原食 -->
-
-## 命令行模式
-
-只要指定 `--project` 参数就能在命令行环境下完成编译+测试，输出会边跑边打印，便于快速迭代(Agent调用)：
-
-```bash
-python main.py --project path_to_src
-```
-
-运行过程中会先输出项目和编译信息，然后每个用例完成时即时打印 `PASS`/`FAIL` 以及进度，失败时还能显示实际/期望输出。请确保 `config.yaml` 中的 `mars_jar`、`jdk_home`、`gcc_path` 等路径配置正确，这样 GUI 和 CLI 会使用同一套工具链。

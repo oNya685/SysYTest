@@ -54,8 +54,13 @@ class OutputMixin:
         self.output_text.config(state=tk.DISABLED)
     
     def _log_failure(self, name: str, status: str, message: str, 
-                     actual: str = None, expected: str = None, max_diff_lines: int = 8):
-        """美观地输出失败信息"""
+                     actual: str = None, expected: str = None):
+        """美观地输出失败信息
+        
+        省略规则（仅 GUI）：
+        - 行长度：期望行长度 + 50 字符后省略
+        - 差异行数：期望行数 + 10 行后省略
+        """
         self.output_text.config(state=tk.NORMAL)
         
         # 分隔线和标题
@@ -87,12 +92,17 @@ class OutputMixin:
             if diff_lines:
                 self._log(f"  差异: {len(diff_lines)} 处", 'warning')
                 
+                # 省略规则：期望行数 + 10
+                max_diff_lines = len(expected_lines) + 10
+                
                 for idx, (line_no, actual_line, expected_line) in enumerate(diff_lines[:max_diff_lines]):
                     self._log(f"  ┌ 第 {line_no} 行", 'dim')
                     
-                    # 截断过长的行
-                    actual_display = actual_line[:60] + ("..." if len(actual_line) > 60 else "")
-                    expected_display = expected_line[:60] + ("..." if len(expected_line) > 60 else "")
+                    # 省略规则：期望行长度 + 50 字符
+                    max_line_len = len(expected_line) + 50
+                    
+                    actual_display = actual_line[:max_line_len] + ("..." if len(actual_line) > max_line_len else "")
+                    expected_display = expected_line  # 期望行完整显示
                     
                     actual_show = "<空>" if actual_line == "" else actual_display
                     expected_show = "<空>" if expected_line == "" else expected_display

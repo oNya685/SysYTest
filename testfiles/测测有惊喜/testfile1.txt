@@ -1,18 +1,10 @@
-void putch(int youknow){
-	printf("You'd better not implement this as a lib func");
-	return;
-}
-
-void putstr(int a) {
-	putch(a);
-}
-
-void getch(int a){}
-
 int main() {
-	int a = getint();
-	putch(a);
-	putstr(a);
-	getch(a);
-	return getint();
+    int a = getint(), b = getint();
+    for (;getint();) {
+        int temp = a;
+        a = b;
+        b = temp;
+		// If remove PHI, pay attention to the sequence of MOVE here
+    }
+    return 0;
 }

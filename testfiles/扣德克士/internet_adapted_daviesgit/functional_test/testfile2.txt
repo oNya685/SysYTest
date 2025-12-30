@@ -1,0 +1,4 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/00_main.sy (MIT) */
+int main(){
+	return 0;
+}

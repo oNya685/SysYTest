@@ -1,0 +1,10 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/09_if.sy (MIT) */
+int a;
+
+int main(){
+	a = 10;
+	if( a>0 ){
+		{ printf("%d\n", 1); return 0; }
+	}
+	return 0;
+}

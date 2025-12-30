@@ -1,0 +1,46 @@
+int main() {
+    int a = getint();
+    int b = getint();
+    int c = getint();
+
+    int x = a + b - c;
+
+    if (a < b) { x = x + a + c; } else { x = x + b - c; }
+    if (b < c) { x = x - b + a; } else { x = x - c + b; }
+    if (c < a) { x = x + c - b; } else { x = x + a - c; }
+    if (x < a) { x = x + a - b; } else { x = x + b - a; }
+    if (x < b) { x = x + b - c; } else { x = x + c - b; }
+    if (x < c) { x = x + c - a; } else { x = x + a - c; }
+
+    if (a < b) { x = x + a + c; } else { x = x + b - c; }
+    if (b < c) { x = x - b + a; } else { x = x - c + b; }
+    if (c < a) { x = x + c - b; } else { x = x + a - c; }
+    if (x < a) { x = x + a - b; } else { x = x + b - a; }
+    if (x < b) { x = x + b - c; } else { x = x + c - b; }
+    if (x < c) { x = x + c - a; } else { x = x + a - c; }
+
+    if (a < b) { x = x + a + c; } else { x = x + b - c; }
+    if (b < c) { x = x - b + a; } else { x = x - c + b; }
+    if (c < a) { x = x + c - b; } else { x = x + a - c; }
+    if (x < a) { x = x + a - b; } else { x = x + b - a; }
+    if (x < b) { x = x + b - c; } else { x = x + c - b; }
+    if (x < c) { x = x + c - a; } else { x = x + a - c; }
+
+    if (a < b) { x = x + a + c; } else { x = x + b - c; }
+    if (b < c) { x = x - b + a; } else { x = x - c + b; }
+    if (c < a) { x = x + c - b; } else { x = x + a - c; }
+    if (x < a) { x = x + a - b; } else { x = x + b - a; }
+    if (x < b) { x = x + b - c; } else { x = x + c - b; }
+    if (x < c) { x = x + c - a; } else { x = x + a - c; }
+
+    if (a < b) { x = x + a + c; } else { x = x + b - c; }
+    if (b < c) { x = x - b + a; } else { x = x - c + b; }
+    if (c < a) { x = x + c - b; } else { x = x + a - c; }
+    if (x < a) { x = x + a - b; } else { x = x + b - a; }
+    if (x < b) { x = x + b - c; } else { x = x + c - b; }
+    if (x < c) { x = x + c - a; } else { x = x + a - c; }
+
+    printf("%d\\n", x);
+    return 0;
+}
+

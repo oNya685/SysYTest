@@ -1,0 +1,57 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/29_while_test3.sy (MIT) */
+int g;
+int h;
+int f;
+int e;
+int EightWhile() {
+  int a;
+  a = 5;
+  int b;
+  int c;
+  b = 6;
+  c = 7;
+  int d;
+  d = 10;
+  for (; a < 20; ) {
+    a = a + 3;
+    for (; b < 10; ){
+      b = b + 1;
+      for (; c == 7; ){
+        c = c - 1;
+        for (; d < 20; ){
+          d = d + 3;
+          for (; e > 1; ){
+            e = e-1;
+            for (; f > 2; ){
+              f = f -2;
+              for (; g < 3; ){
+                g = g +10;
+                for (; h < 10; ){
+                  h = h + 8;
+                }
+                h = h-1;
+              }
+              g = g- 8;
+            }
+            f = f + 1;
+          }
+          e = e + 1;
+        }
+        d = d - 1;
+      }
+      c = c + 1;
+    }
+    b = b - 2;
+  }
+  
+  return (a + (b + d) + c)-(e + d - g + h);
+}
+
+int main() {
+  g = 1;
+  h = 2;
+  e = 4;
+  f = 6;
+  { printf("%d\n", EightWhile()); return 0; }
+    return 0;
+}

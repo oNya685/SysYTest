@@ -1,0 +1,10 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/03_var_defn2.sy (MIT) */
+int a,b;
+
+int main(){
+    a=10;
+    b=5;
+    int c=a*2+b+3;
+    { printf("%d\n", c); return 0; }
+    return 0;
+}

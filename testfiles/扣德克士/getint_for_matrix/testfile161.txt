@@ -1,0 +1,25 @@
+// getint in for-loop matrix; mask=160 (0b10100000)
+// bits: 0 oi,1 oc,2 os,3 ob,4 ii,5 ic,6 is,7 ib
+int g;
+
+int add(int x, int w) {
+    g = g + x * w;
+    return 0;
+}
+
+int main() {
+    g = 0;
+    int i;
+    int j;
+
+    for (i = 0; i < 2; i = i + 1) {
+        for (j = 0; j < 2 + add(getint(), 32); j = j + 1) {
+            add(getint(), 128);
+            g = g + i * 10 + j;
+        }
+        g = g + 100 + i;
+    }
+
+    printf("%d\n", g);
+    return 0;
+}

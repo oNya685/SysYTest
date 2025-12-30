@@ -1,0 +1,11 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/19_neg_expr.sy (MIT) */
+int a;
+int b;
+int main(){
+	a = getint();
+	b = getint();
+	int c;
+	c = -(a + b);
+    printf("%d\n", c);
+	return 0;
+}

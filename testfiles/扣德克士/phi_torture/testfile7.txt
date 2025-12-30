@@ -1,0 +1,31 @@
+/* phi_torture 7: deep condition nesting + loop break edge */
+int main() {
+    int i;
+    int x = 0;
+    int y = 1;
+    int z = 2;
+
+    for (i = 0; i < 7; i = i + 1) {
+        if (i < 3 && x < 2 || i < 3 && y < 3 || i >= 3 && z % 2 == 0 && y > 0) {
+            x = x + y;
+            if (x % 2 == 0) {
+                y = y + 1;
+            } else {
+                y = y + 2;
+            }
+        } else {
+            z = z + x;
+            if (z % 3 == 0) {
+                x = x - 1;
+            }
+        }
+
+        if (x + y + z > 20) {
+            break;
+        }
+        z = z + 1;
+    }
+
+    printf("%d\n", i * 1000 + x * 100 + y * 10 + z);
+    return 0;
+}

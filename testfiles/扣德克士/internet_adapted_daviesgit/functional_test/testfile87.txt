@@ -1,0 +1,28 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/72_enum.sy (MIT) */
+int main()
+{
+    int i;
+    int j;
+    int k;
+    int t;
+    i=0;j=0;k=0;
+    for (; i<21; )
+    {
+        for (; j<101-i; )
+        {
+            k=100-i-j;
+            if(5*i+1*j+k/2==100)
+            {
+                printf("%d", i);
+                printf("%d", j);
+                printf("%d", k);
+                t=10;
+                printf("%d", t);
+            }
+            j=j+1;
+        }
+        i=i+1;
+    }
+
+    return 0;
+}

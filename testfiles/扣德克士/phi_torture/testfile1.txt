@@ -1,0 +1,21 @@
+/* phi_torture 1: loop-header phi + if-else join phi (both branches executed) */
+int main() {
+    int i;
+    int x = 0;
+    int y = 1;
+
+    for (i = 0; i < 6; i = i + 1) {
+        if (i % 2 == 0) {
+            x = x + y;
+            y = y + 1;
+        } else {
+            x = x - y;
+            y = y + 2;
+        }
+        x = x + y;
+    }
+
+    printf("%d\n", x * 10 + y);
+    return 0;
+}
+

@@ -1,0 +1,15 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/43_time_prior_plus.sy (MIT) */
+// Check the priority between time and plus
+int main() {
+    int a;
+    a = 20;
+    int b;
+    b = 5;
+    int c;
+    c = 6;
+    int d;
+    d = -4;
+    a = a + c * d - b % (a + d) / a;
+    printf("%d", a);
+    return 0;
+}

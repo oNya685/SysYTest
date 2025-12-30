@@ -1,0 +1,8 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/07_return_var.sy (MIT) */
+int a;
+
+int main(){
+	a=10;
+	{ printf("%d\n", a); return 0; }
+    return 0;
+}

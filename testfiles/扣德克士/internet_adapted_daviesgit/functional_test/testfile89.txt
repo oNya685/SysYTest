@@ -1,0 +1,28 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/74_itera_sqrt.sy (MIT) */
+int fsqrt(int a)
+{
+    int x0=0;
+    int x1;
+    x1=a/2;
+    for (; x0-x1!=0; )
+    {
+        x0=x1;
+        x1=(x0+a/x0);
+        x1=x1/2;
+    }
+
+    return x1;
+
+}
+
+int main()
+{
+    int a;
+    a=400;
+    int res;
+    res=fsqrt(a);
+    printf("%d", res);
+    res = 10;
+    printf("%d", res);
+    return 0;
+}

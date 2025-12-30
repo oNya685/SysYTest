@@ -1,0 +1,16 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/50_recursion_test1.sy (MIT) */
+int fact(int n) {
+  if (n == 0) {
+    return 1;
+  }
+  int nn;
+  nn = n-1;
+  return (n * fact(nn));
+}
+
+int main() {
+  int n;
+  n = 4;
+  { printf("%d\n", fact(n)); return 0; }
+    return 0;
+}

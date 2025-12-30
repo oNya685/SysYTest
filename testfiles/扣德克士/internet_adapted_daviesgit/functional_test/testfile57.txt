@@ -1,0 +1,16 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/41_index_arithmetic_expr.sy (MIT) */
+// Use arithmetic expression as array's index
+int main() {
+    int a;
+    int b;
+    int result[3];
+    a = 56;
+    b = 12;
+    result[0] = 1;
+    result[1] = 2;
+    result[2] = 3;
+    int t;
+    t = result[(a % b + b) / 5 - 2];
+    printf("%d", t);
+    return 0;
+}

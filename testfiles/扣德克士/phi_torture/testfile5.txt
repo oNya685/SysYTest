@@ -1,0 +1,35 @@
+/* phi_torture 5: phi-of-phi across nested diamonds inside loop */
+int main() {
+    int i;
+    int a = 0;
+    int b = 1;
+    int c = 2;
+
+    for (i = 0; i < 5; i = i + 1) {
+        int t;
+
+        if (i % 2 == 0) {
+            t = b + i;
+        } else {
+            t = c + i;
+        }
+
+        if (t % 3 == 0) {
+            a = a + t;
+            b = b + 1;
+        } else {
+            a = a - t;
+            c = c + 2;
+        }
+
+        if (a < 0) {
+            a = a + b;
+        } else {
+            a = a + c;
+        }
+    }
+
+    printf("%d\n", a * 100 + b * 10 + c);
+    return 0;
+}
+

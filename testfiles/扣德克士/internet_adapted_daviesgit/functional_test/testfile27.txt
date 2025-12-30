@@ -1,0 +1,27 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/13_array_traverse2.sy (MIT) */
+int a[27];
+
+int main() {
+    int i;
+    int j;
+    int k;
+    i = 0;
+    j = 0;
+    k = 0;
+    int cnt = 0;
+
+    for (; i < 3; ) {
+        for (; j < 3; ) {
+            for (; k < 3; ) {
+                a[(i * 3 + j) * 3 + k] = cnt;
+                cnt = cnt + 1;
+                k = k + 1;
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+
+    printf("%d\n", a[0] + a[26] + cnt);
+    return 0;
+}

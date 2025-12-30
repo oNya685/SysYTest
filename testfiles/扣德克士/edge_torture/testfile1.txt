@@ -1,0 +1,47 @@
+/* edge_torture 1: global decl/init corner cases */
+const int N = 5;
+const int K = 1 + 2 * 3 - 4 / 2;
+const int NEG = -1;
+const int CA[N] = {};
+const int CB[3] = {1, 2, 3};
+
+int gv1;
+int gv2 = 7;
+int ga[N] = {1, 2};
+int gb[N];
+
+int sum_arr(int a[], int n) {
+    int i;
+    int s = 0;
+    for (i = 0; i < n; i = i + 1) {
+        s = s + a[i];
+    }
+    return s;
+}
+
+int main() {
+    int i;
+    int s1 = 0;
+    int s2 = 0;
+    for (i = 0; i < N; i = i + 1) {
+        s1 = s1 + ga[i] + gb[i];
+        s2 = s2 + CA[i];
+    }
+
+    sum_arr(ga, N);
+
+    int t = gv1;
+    {
+        int gv1 = 100;
+        t = t + gv1;
+    }
+    t = t + gv1;
+
+    int local[N] = {};
+    local[0] = gv2;
+
+    int ans = K * 1000 + (NEG + 1) * 100 + s1 * 10 + (local[0] + t + s2);
+    printf("%d\n", ans);
+    return 0;
+}
+

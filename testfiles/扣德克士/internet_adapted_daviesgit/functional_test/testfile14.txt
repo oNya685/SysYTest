@@ -1,0 +1,7 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/07_comment1.sy (MIT) */
+int main(){
+    //this is a single line comment
+    //int a;
+    //a=5;
+    return 0;
+}

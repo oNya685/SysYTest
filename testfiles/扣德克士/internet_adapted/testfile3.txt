@@ -1,0 +1,34 @@
+/* Adapted (re-written) from a public SysY test: insert into sorted array. */
+int N;
+
+int insert_sorted(int a[], int x) {
+    int p;
+    int i;
+
+    p = 0;
+    for (; p < N && x > a[p]; p = p + 1) {
+        ;
+    }
+
+    for (i = N; i > p; i = i - 1) {
+        a[i] = a[i - 1];
+    }
+    a[p] = x;
+    return 0;
+}
+
+int main() {
+    N = 10;
+    int a[11] = {1, 3, 4, 7, 8, 11, 13, 18, 56, 78, 0};
+
+    int x = getint();
+    insert_sorted(a, x);
+
+    int i;
+    for (i = 0; i < N; i = i + 1) {
+        printf("%d\n", a[i]);
+    }
+
+    return 0;
+}
+

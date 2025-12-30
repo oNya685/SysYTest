@@ -1,0 +1,9 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/02_var_defn2.sy (MIT) */
+int a;
+int b;
+int main(){
+	a=10;
+	int c;
+	c=10;
+	return 0;
+}

@@ -1,0 +1,11 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/06_mod.sy (MIT) */
+int a;
+int b;
+int main(){
+	a = 10;
+	b = 3;
+	int c;
+	c = a % b;
+	{ printf("%d\n", c); return 0; }
+    return 0;
+}

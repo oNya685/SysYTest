@@ -1,0 +1,8 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/00_arr_defn2.sy (MIT) */
+int a[100];
+int main() {
+    a[0] = 1;
+    a[99] = 2;
+    printf("%d\n", a[0] + a[99]);
+    return 0;
+}

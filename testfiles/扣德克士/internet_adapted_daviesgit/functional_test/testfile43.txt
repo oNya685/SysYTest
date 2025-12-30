@@ -1,0 +1,20 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/26_if_test5.sy (MIT) */
+// test if-{if}-else
+int if_if_Else() {
+  int a;
+  a = 5;
+  int b;
+  b = 10;
+  if(a == 5){
+    if (b == 10) 
+      a = 25;
+  }
+    else 
+      a = a + 15;
+  return (a);
+}
+
+int main(){
+  { printf("%d\n", (if_if_Else())); return 0; }
+    return 0;
+}

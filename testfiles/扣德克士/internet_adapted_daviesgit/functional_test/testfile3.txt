@@ -1,0 +1,6 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/01_var_defn.sy (MIT) */
+int a;
+int main(){
+	a=10;
+	return 0;
+}

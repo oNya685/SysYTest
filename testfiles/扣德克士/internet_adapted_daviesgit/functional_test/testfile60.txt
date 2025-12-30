@@ -1,0 +1,20 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/44_add_prior_equal.sy (MIT) */
+// Add is prior than equal and not equal
+int main () {
+    int a;
+    int b;
+    int c;
+    a = 1;
+    b = 4;
+    c = 28;
+    int t;
+    if (c + a != b) {
+        t = c % -b;
+        printf("%d", t);
+    }
+    if (b - c == a) {
+        t = c%b+b;
+        printf("%d", t);
+    }
+    return 0;
+}

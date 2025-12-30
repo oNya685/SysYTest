@@ -46,6 +46,13 @@ python main.py --project path_to_src
 
 运行时会实时打印 `PASS`/`FAIL` 结果和进度，失败时显示实际/期望输出对比。
 
+**常用参数：**
+- `--match <子串>` - 只运行用例名包含该子串的用例（可多次指定）
+- `--show-cycle` - 显示运行周期数（需 Mars 支持）
+- `--show-time` - 显示编译耗时
+
+运行 `python main.py --help` 查看完整参数列表。
+
 ## 同步更新测试用例
 
 ### 从远程仓库获取最新测试用例

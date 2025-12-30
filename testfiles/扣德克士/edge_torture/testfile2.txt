@@ -1,0 +1,50 @@
+/* edge_torture 2: static locals, shadowing function names, void return */
+int g;
+
+int bump(int x) {
+    g = g + x;
+    return g;
+}
+
+void sink(int x) {
+    if (x) {
+        g = g + 1;
+        return;
+    } else {
+        return;
+    }
+}
+
+int accum(int a[], int n) {
+    static int times = 0;
+    static int z;
+    int i;
+    int s = 0;
+
+    times = times + 1;
+    for (i = 0; i < n; i = i + 1) {
+        s = s + a[i];
+    }
+    z = z + times;
+    return s + z;
+}
+
+int main() {
+    int a[3] = {1, 2, 3};
+
+    g = 0;
+    int out = accum(a, 3) * 100 + accum(a, 3);
+
+    {
+        int bump = 7;
+        g = g + bump;
+    }
+
+    bump(5);
+    sink(0);
+    sink(1);
+
+    printf("%d\n", out + g);
+    return 0;
+}
+

@@ -1,0 +1,5 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/03_arr_defn.sy (MIT) */
+int a[10];
+int main(){
+	return 0;
+}

@@ -1,0 +1,13 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/15_equal.sy (MIT) */
+int a;
+int b;
+int main(){
+	a = getint();
+	b = getint();
+    int res = 0;
+    if (a == b) {
+        res = 1;
+    }
+    printf("%d\n", res);
+    return 0;
+}

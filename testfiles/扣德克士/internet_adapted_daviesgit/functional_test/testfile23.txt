@@ -1,0 +1,13 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/11_while.sy (MIT) */
+int a;
+int b;
+int main(){
+	b=0;
+	a=3;
+	for (; a>0; ){	
+		b = b+a;
+		a = a-1;
+	}
+	{ printf("%d\n", b); return 0; }
+    return 0;
+}	

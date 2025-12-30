@@ -1,0 +1,10 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/06_var_defn_func.sy (MIT) */
+int defn(){
+    return 4;
+}
+
+int main(){
+    int a=defn();
+    { printf("%d\n", a); return 0; }
+    return 0;
+}

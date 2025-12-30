@@ -1,0 +1,111 @@
+// Adapted from DaviesGit/SysY_compiler:
+// https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/03_sort2.sy
+// Variant of testfile10: different N/data distribution.
+
+const int base = 16;
+const int N = 160;
+const int MOD = 10007;
+
+int a[N] = {};
+int ans;
+
+int prng() {
+    static int s = 99;
+    s = (s * 71 + 19) % MOD;
+    return s;
+}
+
+int getMaxNum(int n, int arr[]) {
+    int ret = 0;
+    int i = 0;
+    for (i = 0; i < n; i = i + 1) {
+        if (arr[i] > ret) ret = arr[i];
+    }
+    return ret;
+}
+
+int getNumPos(int num, int pos) {
+    int i = 0;
+    for (i = 0; i < pos; i = i + 1) num = num / base;
+    return num % base;
+}
+
+void radixSort(int bitround, int a[], int l, int r) {
+    int head[base] = {};
+    int tail[base] = {};
+    int cnt[base] = {};
+
+    if (bitround == -1 || l + 1 >= r) return;
+
+    int i = l;
+    for (; i < r; ) {
+        int p = getNumPos(a[i], bitround);
+        cnt[p] = cnt[p] + 1;
+        i = i + 1;
+    }
+
+    head[0] = l;
+    tail[0] = l + cnt[0];
+
+    i = 1;
+    for (; i < base; ) {
+        head[i] = tail[i - 1];
+        tail[i] = head[i] + cnt[i];
+        i = i + 1;
+    }
+
+    i = 0;
+    for (; i < base; ) {
+        for (; head[i] < tail[i]; ) {
+            int v = a[head[i]];
+            for (; getNumPos(v, bitround) != i; ) {
+                int t = v;
+                int dest = head[getNumPos(t, bitround)];
+                v = a[dest];
+                a[dest] = t;
+                head[getNumPos(t, bitround)] = head[getNumPos(t, bitround)] + 1;
+            }
+            a[head[i]] = v;
+            head[i] = head[i] + 1;
+        }
+        i = i + 1;
+    }
+
+    i = 0;
+    head[0] = l;
+    tail[0] = l + cnt[0];
+    for (; i < base; ) {
+        if (i > 0) {
+            head[i] = tail[i - 1];
+            tail[i] = head[i] + cnt[i];
+        }
+        radixSort(bitround - 1, a, head[i], tail[i]);
+        i = i + 1;
+    }
+    return;
+}
+
+int main() {
+    int i = 0;
+    for (i = 0; i < N; i = i + 1) {
+        int v = (prng() + (i % 7) * 97) % 8192;
+        if (i % 11 == 0) v = 0;
+        a[i] = v;
+    }
+
+    int mx = getMaxNum(N, a);
+    int rounds = 0;
+    for (; mx > 0; ) {
+        rounds = rounds + 1;
+        mx = mx / base;
+    }
+
+    radixSort(rounds - 1, a, 0, N);
+
+    ans = 0;
+    for (i = 0; i < N; i = i + 1) {
+        ans = (ans + (a[i] % 257)) % 257;
+    }
+    printf("%d\n", ans);
+    return 0;
+}

@@ -1,0 +1,24 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/21_suminput.sy (MIT) */
+//sample:input n numbers,then print the sum of them;
+int n;
+int a[10];
+int main()
+{
+	n = getint();
+    if (n > 10) {
+        printf("%d\n", 1);
+        return 0;
+    }
+
+    int s;
+    int i;
+    i = 0;
+    s = 0;
+    for (; i < n; ) {
+        a[i] = getint();
+        s = s + a[i];
+        i = i + 1;
+    }
+    printf("%d\n", s);
+    return 0;
+}

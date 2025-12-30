@@ -1,0 +1,41 @@
+/* Adapted (re-written) from a public SysY test: jump game style DP. */
+int canJump(int nums[], int n) {
+    if (n == 1) {
+        return 1;
+    }
+    if (nums[0] > n - 2) {
+        return 1;
+    }
+
+    int dp[10];
+    int i;
+    for (i = 0; i < n - 1; i = i + 1) {
+        dp[i] = 0;
+    }
+    dp[n - 1] = 1;
+
+    for (i = n - 2; i > -1; i = i - 1) {
+        int j;
+        if (nums[i] < n - 1 - i) {
+            j = nums[i];
+        } else {
+            j = n - 1 - i;
+        }
+
+        for (; j > -1; j = j - 1) {
+            if (dp[i + j] != 0) {
+                dp[i] = 1;
+            }
+        }
+    }
+
+    return dp[0];
+}
+
+int main() {
+    int a[10] = {3, 3, 9, 0, 0, 1, 1, 5, 7, 8};
+    int res = canJump(a, 10);
+    printf("%d\n", res);
+    return 0;
+}
+

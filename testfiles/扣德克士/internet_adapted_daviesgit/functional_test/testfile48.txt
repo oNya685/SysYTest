@@ -1,0 +1,25 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/31_while_if_test2.sy (MIT) */
+int ifWhile() {
+  int a;
+  a = 0;
+  int b;
+  b = 3;
+  if (a == 5) {
+    for (; b == 2; ){
+      b = b + 2;
+    }
+    b = b + 25;
+  }
+  else 
+    for (; a < 5; ) {
+      b = b * 2;
+      a = a + 1;
+    }
+  return (b);
+}
+
+
+int main(){
+  { printf("%d\n", (ifWhile())); return 0; }
+    return 0;
+}

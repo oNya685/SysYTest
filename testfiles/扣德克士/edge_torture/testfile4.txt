@@ -1,0 +1,28 @@
+/* edge_torture 4: dangling-else + empty statement */
+int main() {
+    int a = 0;
+    int b = 0;
+    int c = 1;
+    int r = 0;
+
+    if (a)
+        if (b)
+            r = 10;
+        else
+            r = 20;
+    r = r + 1;
+
+    if (c)
+        if (a)
+            r = r + 100;
+        else
+            r = r + 200;
+    else
+        r = r + 300;
+
+    ;
+
+    printf("%d\n", r);
+    return 0;
+}
+

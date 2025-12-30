@@ -1,0 +1,8 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/49_decl_in_defn.sy (MIT) */
+int main () {
+    int a;
+    a = 12;
+    int t;
+    printf("%d", a);
+    return 0;
+}

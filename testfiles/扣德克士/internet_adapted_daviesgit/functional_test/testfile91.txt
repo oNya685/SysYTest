@@ -1,0 +1,35 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/76_int_factor_sum.sy (MIT) */
+int N;
+
+int newline;
+
+int factor(int n )
+{
+    int i;
+    int sum;
+    sum=0;
+    i=1;
+    for (; i<n+1; )
+    {
+        if(n%i == 0)
+        {
+            sum=sum+i;
+        }
+        i=i+1;
+    }
+
+    return sum;
+}
+
+int main()
+{
+    N=4;
+    newline=10;
+    int i;
+    int m;
+    m = 1478;
+    int t;
+    
+    { printf("%d\n", factor(m)); return 0; }
+    return 0;
+}

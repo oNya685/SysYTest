@@ -1,0 +1,36 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/79_gcd.sy (MIT) */
+int n;
+
+int gcd(int m,int n)
+{ 
+    int t;
+    int r;
+
+    if(m<n) { t=m;m=n;n=t; }
+
+    r=m%n;
+
+    for (; r!=0; )
+    {
+        m=n;   
+        n=r;   
+        r=m%n;  
+    }
+
+  return n;
+
+}
+
+int main()
+{
+    //newline=10;
+    int i;
+    int m;
+    //m = 1478;
+    //int t;
+    i=getint();
+    m=getint();
+    
+    printf("%d\n", gcd(i,m));
+    return 0;
+}

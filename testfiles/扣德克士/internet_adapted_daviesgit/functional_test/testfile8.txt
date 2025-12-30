@@ -1,0 +1,7 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/04_const_defn.sy (MIT) */
+const int x=4;
+
+int main(){
+    { printf("%d\n", x); return 0; }
+    return 0;
+}

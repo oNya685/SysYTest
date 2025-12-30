@@ -1,0 +1,13 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/04_func_defn.sy (MIT) */
+int a;
+int func(int p){
+	p = p - 1;
+	return p;
+}
+int main(){
+	int b;
+	a = 10;
+	b = func(a);
+	{ printf("%d\n", b); return 0; }
+    return 0;
+}

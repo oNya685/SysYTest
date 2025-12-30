@@ -1,0 +1,11 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/47_minus_with_sub.sy (MIT) */
+// Use minus with sub in one expr
+int main () {
+    int a;
+    int b;
+    a = -2;
+    b = 1;
+    a = a - -b + -(a + b) % -(a - b);
+    printf("%d", a);
+    return 0;
+}

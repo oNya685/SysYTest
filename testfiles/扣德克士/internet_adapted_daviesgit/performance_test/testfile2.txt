@@ -1,0 +1,67 @@
+// Adapted from DaviesGit/SysY_compiler:
+// https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/00_bitset2.sy
+// Variant of testfile1: different PRNG/OPS/length to avoid being a duplicate.
+
+const int BITCOUNT = 30;
+const int ARR_LEN = 24;
+
+int bits[ARR_LEN] = {};
+
+int setbit(int a[], int pos, int d) {
+    int pow2[BITCOUNT + 1] = {};
+
+    pow2[0] = 1;
+    int i = 0;
+    for (i = 1; i <= BITCOUNT; i = i + 1) {
+        pow2[i] = pow2[i - 1] * 2;
+    }
+
+    if (pos / BITCOUNT >= ARR_LEN) return 0;
+
+    int idx = pos / BITCOUNT;
+    int mask = pow2[pos % BITCOUNT];
+    int cur = a[idx] / mask % 2;
+
+    if (cur != d) {
+        if (cur == 0)
+            if (d == 1)
+                a[idx] = a[idx] + mask;
+        if (cur == 1)
+            if (d == 0)
+                a[idx] = a[idx] - mask;
+    }
+    return 0;
+}
+
+int prng() {
+    static int state = 1234;
+    state = state * 1597 + 517;
+    state = state % 100003;
+    if (state < 0) state = -state;
+    return state;
+}
+
+int main() {
+    const int OPS = 700;
+    int i = 0;
+
+    for (i = 0; i < OPS; i = i + 1) {
+        int pos = prng() % (ARR_LEN * BITCOUNT + 9);
+        int d = (prng() + i) % 2;
+
+        if (i % 17 == 0)
+            setbit(bits, pos, 0);
+        else
+            setbit(bits, pos, d);
+    }
+
+    int checksum = 0;
+    for (i = 0; i < ARR_LEN; i = i + 1) {
+        int v = bits[i];
+        checksum = checksum + (v % 8191);
+        checksum = checksum % 8191;
+    }
+
+    printf("%d\n", checksum);
+    return 0;
+}

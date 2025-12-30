@@ -1,0 +1,18 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/22_if_test1.sy (MIT) */
+// test if-else
+int ifElse() {
+  int a;
+  a = 5;
+  if (a == 5) {
+    a = 25;
+  } else {
+    a = a * 2;
+  }
+  return (a);
+}
+
+
+int main() {
+  { printf("%d\n", (ifElse())); return 0; }
+    return 0;
+}

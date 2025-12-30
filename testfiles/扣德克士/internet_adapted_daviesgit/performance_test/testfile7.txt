@@ -1,0 +1,93 @@
+// Adapted from DaviesGit/SysY_compiler:
+// https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/02_mv1.sy
+// Changes:
+// - Flatten 2D array A into 1D.
+// - Keep the "global x + inner-scope x" shadowing pattern.
+// - Remove getint/starttime/stoptime/putarray; print a checksum.
+
+int x;
+
+const int N = 15;
+const int NN = N * N;
+const int MOD = 10007;
+
+int A[NN] = {};
+int B[N] = {};
+int C[N] = {};
+
+int prng() {
+    static int s = 123;
+    s = (s * 149 + 17) % MOD;
+    return s;
+}
+
+void init_vec(int n, int v[], int salt) {
+    int i = 0;
+    for (i = 0; i < n; i = i + 1) {
+        v[i] = (prng() + salt + i) % 23;
+        if (v[i] == 0) v[i] = 1;
+    }
+}
+
+void init_mat(int n, int a[], int salt) {
+    int nn = n * n;
+    int i = 0;
+    for (i = 0; i < nn; i = i + 1) {
+        int v = (prng() + salt + (i % 7)) % 11;
+        if (i % (n + 2) == 0) v = 0;
+        a[i] = v;
+    }
+}
+
+void mv(int n, int A[], int b[], int res[]) {
+    int i, j;
+    int y = 0;
+
+    for (i = 0; i < n; i = i + 1) {
+        res[i] = 0;
+    }
+
+    {
+        int x = 11;
+        for (i = 0; i < n; i = i + 1) {
+            for (j = 0; j < n; j = j + 1) {
+                int v = A[i * n + j];
+                if (v == 0) {
+                    x = (x * b[i] + b[j]) % MOD;
+                    y = y - x;
+                    if (y < 0) y = y + MOD;
+                } else {
+                    res[i] = (res[i] + v * b[j]) % MOD;
+                }
+            }
+
+            if (y % 2 == 0)
+                res[i] = (res[i] + y) % MOD;
+            else
+                res[i] = (res[i] + x) % MOD;
+        }
+        y = (y + x) % MOD;
+    }
+
+    x = (x + y) % MOD;
+}
+
+int main() {
+    x = 0;
+    init_mat(N, A, 3);
+    init_vec(N, B, 5);
+
+    int it = 0;
+    for (it = 0; it < 20; it = it + 1) {
+        mv(N, A, B, C);
+        mv(N, A, C, B);
+    }
+
+    int ans = x;
+    int i = 0;
+    for (i = 0; i < N; i = i + 1) {
+        ans = (ans + (B[i] % 97)) % 97;
+    }
+    printf("%d\n", ans);
+    return 0;
+}

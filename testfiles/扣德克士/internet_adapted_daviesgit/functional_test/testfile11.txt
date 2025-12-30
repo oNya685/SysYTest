@@ -1,0 +1,7 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/05_const_array_defn.sy (MIT) */
+const int a[5]={0,1,2,3,4};
+
+int main(){
+    { printf("%d\n", a[4]); return 0; }
+    return 0;
+}

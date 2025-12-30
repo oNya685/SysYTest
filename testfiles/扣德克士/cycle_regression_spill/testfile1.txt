@@ -1,0 +1,45 @@
+int main() {
+    int a0 = getint();
+    int a1 = getint();
+    int a2 = getint();
+    int a3 = getint();
+    int a4 = getint();
+    int a5 = getint();
+    int a6 = getint();
+    int a7 = getint();
+
+    int sum = 0;
+    int i = 0;
+    for (i = 0; i < 80; i = i + 1) {
+        int x0 = a0 * a1 + a2 * a3;
+        int x1 = a0 * a1 + a2 * a3;
+        int y0 = a4 * a5 + a6 * a7;
+        int y1 = a4 * a5 + a6 * a7;
+
+        int t0 = a0 + a4;
+        int t1 = a1 + a5;
+        int t2 = a2 + a6;
+        int t3 = a3 + a7;
+        int t4 = t0 * t1 - t2 * t3;
+
+        sum = sum + x0 + y0 + t4;
+        if (sum > 0) {
+            sum = sum + x1;
+        } else {
+            sum = sum + y1;
+        }
+
+        a0 = a0 + 1;
+        a1 = a1 + 2;
+        a2 = a2 + 3;
+        a3 = a3 + 4;
+        a4 = a4 + 5;
+        a5 = a5 + 6;
+        a6 = a6 + 7;
+        a7 = a7 + 8;
+    }
+
+    printf("%d\\n", sum);
+    return 0;
+}
+

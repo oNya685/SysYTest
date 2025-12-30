@@ -4,7 +4,7 @@
 import argparse
 import sys
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from .config import get_config
 from .discovery import TestDiscovery
@@ -47,7 +47,12 @@ def _print_failure_detail(case_name: str, result: TestResult):
             print(f"    {line}", flush=True)
 
 
-def run_cli(project: Path) -> int:
+def run_cli(
+    project: Path,
+    show_cycle: bool = False,
+    show_time: bool = False,
+    match: Optional[List[str]] = None,
+) -> int:
     """命令行模式：编译并运行所有测试，日志输出到控制台"""
     config = get_config()
     test_dir = Path(__file__).parent.parent.resolve()
@@ -78,6 +83,11 @@ def run_cli(project: Path) -> int:
             case.name = f"{rel}/{case.name}"
             cases.append(case)
 
+    if match:
+        lowered = [m.lower() for m in match if m]
+        if lowered:
+            cases = [c for c in cases if any(m in c.name.lower() for m in lowered)]
+
     if not cases:
         print(_format_output("WARN", "未发现测试用例"))
         return 0
@@ -93,7 +103,13 @@ def run_cli(project: Path) -> int:
         nonlocal passed, failed
         if result.passed:
             passed += 1
-            print(_format_output("PASS", case.name), flush=True)
+            extra_parts = []
+            if show_time and result.compile_time_ms is not None:
+                extra_parts.append(f"compile={result.compile_time_ms}ms")
+            if show_cycle and result.cycle is not None:
+                extra_parts.append(f"cycle={result.cycle}")
+            suffix = f" ({', '.join(extra_parts)})" if extra_parts else ""
+            print(_format_output("PASS", case.name + suffix), flush=True)
         else:
             failed += 1
             _print_failure_detail(case.name, result)
@@ -113,10 +129,30 @@ def main(argv=None):
         type=str,
         help="编译器项目路径。指定后直接在命令行模式下编译并运行测试"
     )
+    parser.add_argument(
+        "--match",
+        action="append",
+        help="只运行用例名包含该子串的用例（可重复指定，如 --match agent_regression）",
+    )
+    parser.add_argument(
+        "--show-cycle",
+        action="store_true",
+        help="在 PASS 行显示 FinalCycle（若可用）",
+    )
+    parser.add_argument(
+        "--show-time",
+        action="store_true",
+        help="在 PASS 行显示编译耗时（ms）",
+    )
     args = parser.parse_args(argv)
 
     if args.project:
-        exit_code = run_cli(args.project)
+        exit_code = run_cli(
+            args.project,
+            show_cycle=args.show_cycle,
+            show_time=args.show_time,
+            match=args.match,
+        )
         sys.exit(exit_code)
 
     print(LOGO)

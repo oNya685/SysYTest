@@ -1,0 +1,21 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/73_exchange_value.sy (MIT) */
+int n;
+
+int main()
+{
+    //newline=10;
+    int i;
+    int j;
+    //m = 1478;
+    //int t;
+    i=getint();
+    j=getint();
+    int temp;
+    temp=i;
+    i=j;
+    j=temp;
+
+    printf("%d\n", i);
+    printf("%d\n", j);
+    return 0;
+}

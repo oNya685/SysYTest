@@ -1,0 +1,39 @@
+/* edge_torture 5: short-circuit + precedence + unary chains */
+int g;
+
+int touch(int x) {
+    g = g + 1;
+    return x;
+}
+
+int main() {
+    g = 0;
+    int x = 0;
+
+    if (1 || 0 && touch(5)) {
+        x = x + 1;
+    }
+
+    if (0 && 1 || touch(7)) {
+        x = x + 2;
+    }
+
+    if (!(!0) && touch(9)) {
+        x = x + 4;
+    }
+
+    if (!(0) || touch(11)) {
+        x = x + 4;
+    }
+
+    int u = -+-5;
+    int v = +-+5;
+
+    int divv = (-7) / 3;
+    int modd = (-7) % 3;
+
+    int ans = x * 1000 + g * 100 + divv * 10 + modd + (u - v);
+    printf("%d\n", ans);
+    return 0;
+}
+

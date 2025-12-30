@@ -1,0 +1,13 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/18_cal_prio.sy (MIT) */
+int a;
+int b;
+int c;
+int main(){
+	a = getint();
+	b = getint();
+	c = getint();
+	int d;
+	d = a+b*c;
+    printf("%d\n", d);
+    return 0;
+}

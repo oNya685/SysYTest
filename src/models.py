@@ -24,6 +24,9 @@ class TestResult:
     message: str = ""
     actual_output: Optional[str] = None
     expected_output: Optional[str] = None
+    compile_time_ms: Optional[int] = None
+    cycle: Optional[int] = None
+    cycle_breakdown: Optional[str] = None
     
     @property
     def passed(self) -> bool:

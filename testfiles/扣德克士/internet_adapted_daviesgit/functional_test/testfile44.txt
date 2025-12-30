@@ -1,0 +1,20 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/27_while_test1.sy (MIT) */
+int doubleWhile() {
+  int i;
+  i = 5;
+  int j;
+  j = 7;
+  for (; i < 100; ) {
+    i = i + 30;
+    for (; j < 100; ){
+      j = j + 6;
+    }
+    j = j - 100;
+  }
+  return (j);
+}
+
+int main() {
+  { printf("%d\n", doubleWhile()); return 0; }
+    return 0;
+}

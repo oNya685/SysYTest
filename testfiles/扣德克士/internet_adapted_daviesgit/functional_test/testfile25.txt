@@ -1,0 +1,7 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/12_getint.sy (MIT) */
+int main() {
+    int a;
+    a = getint();
+    printf("%d\n", a);
+    return 0;
+}

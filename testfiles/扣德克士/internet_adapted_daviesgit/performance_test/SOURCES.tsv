@@ -1,0 +1,15 @@
+1	00_bitset1.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/00_bitset1.sy
+2	00_bitset2.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/00_bitset2.sy
+3	00_bitset3.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/00_bitset3.sy
+4	01_mm1.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/01_mm1.sy
+5	01_mm2.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/01_mm2.sy
+6	01_mm3.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/01_mm3.sy
+7	02_mv1.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/02_mv1.sy
+8	02_mv2.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/02_mv2.sy
+9	02_mv3.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/02_mv3.sy
+10	03_sort1.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/03_sort1.sy
+11	03_sort2.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/03_sort2.sy
+12	03_sort3.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/03_sort3.sy
+13	04_spmv1.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/04_spmv1.sy
+14	04_spmv2.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/04_spmv2.sy
+15	04_spmv3.sy	https://raw.githubusercontent.com/DaviesGit/SysY_compiler/master/test_sample/performance_test/04_spmv3.sy

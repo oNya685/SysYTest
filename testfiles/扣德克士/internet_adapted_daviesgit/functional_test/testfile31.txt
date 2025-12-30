@@ -1,0 +1,12 @@
+/* Source: DaviesGit/SysY_compiler/test_sample/functional_test/16_greater_eq.sy (MIT) */
+int a=5;
+int s[10]={9,8,7,6,5,4,3,2,1};
+
+int main(){
+    int i=0;
+    for (; s[i]>=a; ){
+        i=i+1;
+    }
+    { printf("%d\n", i); return 0; }
+    return 0;
+}

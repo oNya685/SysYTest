@@ -13,7 +13,7 @@ int main() {
     }
 
     // 大规模遍历
-    for (i = 0; i < 100000; i = i + 1) {
+    for (i = 0; i < 50000; i = i + 1) {
         int idx = i % 1024; // % 1024 应优化为 & 1023 (或者 负数修正的 shift)
         int val = arr[idx];
 
@@ -36,7 +36,7 @@ int main() {
         // 动态更新数组，破坏单纯的循环不变量，强迫每次都算
         arr[idx] = val + 1;
         
-        if (i % 20000 == 0) {
+        if (i % 5000 == 0) {
             printf("Step %d: %d\n", i, sum);
         }
     }

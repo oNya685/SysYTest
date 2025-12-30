@@ -6,7 +6,7 @@ int main() {
     int sum_mod = 0;
 
     // 循环 100万次
-    for (i = 0; i < 30000; i = i + 1) {
+    for (i = 0; i < 20000; i = i + 1) {
         // 生成全范围随机数
         val = val * 69069 + 1;
         

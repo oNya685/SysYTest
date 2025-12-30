@@ -284,7 +284,11 @@ class AgentTab(BaseTab):
         # 创建工具服务器（只在不存在时创建，保持状态）
         if not self.tool_server:
             compiler_jar = self.test_dir / ".tmp" / "Compiler.jar"
-            mars_jar = Path(__file__).parent.parent / "Mars.jar"
+            
+            # Mars.jar 路径（从配置读取，支持相对路径）
+            mars_path = Path(self.config.mars_jar)
+            if not mars_path.is_absolute():
+                mars_path = (self.test_dir / mars_path).resolve()
             
             java_cmd = self.config.tools.get_java()
             gcc_cmd = self.config.tools.get_gcc()
@@ -292,7 +296,7 @@ class AgentTab(BaseTab):
             self.tool_server = SysYToolServer(
                 test_dir=self.test_dir,
                 compiler_jar=compiler_jar,
-                mars_jar=mars_jar,
+                mars_jar=mars_path,
                 java_cmd=java_cmd,
                 gcc_cmd=gcc_cmd,
                 c_header=self.config.c_header

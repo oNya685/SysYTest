@@ -1,0 +1,7 @@
+//test add of hex and oct
+int main(){
+    int a, b;
+    a = 015;
+    b =- 012;
+    return a + b + 075;
+}

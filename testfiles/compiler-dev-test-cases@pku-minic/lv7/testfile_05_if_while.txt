@@ -1,0 +1,12 @@
+int main() {
+  int a = 1;
+  if (a > 1) {
+    for (; 1; ) {
+    }
+  } else {
+    for (; a < 10; ) {
+      a = a + 2;
+    }
+  }
+  return a;
+}

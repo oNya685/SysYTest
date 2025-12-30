@@ -1,0 +1,10 @@
+int main() {
+  int x = getint();
+  int y = getint();
+  printf("%d", x + y);
+  int c = getint();
+  printf("%d", c);
+  printf("%d", 33);
+  printf("\n");
+  return 0;
+}

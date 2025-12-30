@@ -1,0 +1,16 @@
+int main() {
+  int a = 1, b = 2;
+  for (; a < 10; ) {
+    a = a + 1;
+    for (; a < 5 && b < 10; ) {
+      b = b + 1;
+    }
+    for (; b < 20; ) {
+      for (; b < 6 || b == 6; ) {
+        b = b + 1;
+      }
+      b = b + 2;
+    }
+  }
+  return a + b;
+}

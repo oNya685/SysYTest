@@ -1,0 +1,21 @@
+int m[4]={20,10,5,1};
+int k;
+
+void greedMoney(int n){
+	int i;
+	i=0;
+	for(; i<k;)
+	{
+		for(; n>=m[i];){
+			printf("%d\n", m[i]);
+			n=n-m[i];
+		}
+		i=i+1;
+	}
+}
+
+int main(){
+	k=4;
+	greedMoney(40);
+	return 0;
+}

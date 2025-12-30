@@ -1,0 +1,27 @@
+int main()
+{
+    int i, j, s, n;  
+    n = getint();
+    i=2;
+    for(; i<=n;)
+    {
+        s=0;  
+        j=1;
+        for(; j<i;)
+        {
+            if(i%j == 0)  
+            {
+            	s=s+j;
+			}
+                
+            j=j+1;
+        }
+        if(s == i)  
+        {
+        	printf("%d\n", i);
+		}
+            
+        i=i+1;
+    }
+    return 0;
+}

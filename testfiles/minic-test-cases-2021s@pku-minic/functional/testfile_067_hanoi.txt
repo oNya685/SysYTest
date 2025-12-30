@@ -1,0 +1,30 @@
+int cnt;
+
+void action(int num,int p,int q)
+{
+	printf("%d:%d->%d\n", num, p, q);
+	cnt=cnt+1;
+}
+
+void hanoi(int num,int p, int q,int r)
+{
+	if(num==1) action(num,p,r);
+	else 
+	{
+		hanoi(num-1,p,r,q);
+		action(num,p,r);
+		hanoi(num-1,q,p,r);
+	}
+}
+
+int main()
+{
+	int num,a,b,c;
+	cnt=0; 
+	num=3;
+	a=1;
+	b=2;
+	c=3;
+	hanoi(num,a,b,c);
+	return cnt;
+}

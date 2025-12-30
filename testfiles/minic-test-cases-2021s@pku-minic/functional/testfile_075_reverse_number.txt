@@ -1,0 +1,13 @@
+int main()
+{
+	int x,digit,rev;
+	rev=0;
+	x=12345;
+	for(; x>0;)
+	{
+	   digit=x%10;  
+	   printf("%d", digit);
+	   x=x/10;	
+	} 
+	return 0;
+}

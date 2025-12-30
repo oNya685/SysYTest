@@ -1,0 +1,16 @@
+int x;
+const int y = 10;
+const int z = y + 1;
+int init = 1;
+
+int main() {
+  printf("%d", x);
+  printf(" ");
+  printf("%d", y);
+  printf(" ");
+  printf("%d", z);
+  printf(" ");
+  printf("%d", init);
+  printf("\n");
+  return 0;
+}

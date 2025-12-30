@@ -1,0 +1,4 @@
+int main() {
+  if (9 <= 3) return 1;
+  return 0;
+}

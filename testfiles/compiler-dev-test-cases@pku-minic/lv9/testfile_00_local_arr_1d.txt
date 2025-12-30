@@ -1,0 +1,6 @@
+int main() {
+  int a[10];
+  const int len = 10;
+  int b[10], c, d[len];
+  return 0;
+}

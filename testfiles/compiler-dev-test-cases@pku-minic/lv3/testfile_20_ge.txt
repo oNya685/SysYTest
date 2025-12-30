@@ -1,0 +1,4 @@
+int main() {
+  if (10 >= -512) return 1;
+  return 0;
+}

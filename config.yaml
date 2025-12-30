@@ -27,7 +27,6 @@ parallel:
   max_workers: 16       # 最大并行线程数（慎重调大）
 
 # MIPS 指令周期权重 (用于计算加权 cycle)
-# 可根据实际 CPU 实现调整
 instruction_weights:
   Division: 15
   Multiply: 5

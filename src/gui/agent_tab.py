@@ -281,21 +281,22 @@ class AgentTab(BaseTab):
             model=self.model_var.get()
         )
         
-        # 创建工具服务器
-        compiler_jar = self.test_dir / ".tmp" / "Compiler.jar"
-        mars_jar = Path(__file__).parent.parent / "Mars.jar"
-        
-        java_cmd = self.config.tools.get_java()
-        gcc_cmd = self.config.tools.get_gcc()
-        
-        self.tool_server = SysYToolServer(
-            test_dir=self.test_dir,
-            compiler_jar=compiler_jar,
-            mars_jar=mars_jar,
-            java_cmd=java_cmd,
-            gcc_cmd=gcc_cmd,
-            c_header=self.config.c_header
-        )
+        # 创建工具服务器（只在不存在时创建，保持状态）
+        if not self.tool_server:
+            compiler_jar = self.test_dir / ".tmp" / "Compiler.jar"
+            mars_jar = Path(__file__).parent.parent / "Mars.jar"
+            
+            java_cmd = self.config.tools.get_java()
+            gcc_cmd = self.config.tools.get_gcc()
+            
+            self.tool_server = SysYToolServer(
+                test_dir=self.test_dir,
+                compiler_jar=compiler_jar,
+                mars_jar=mars_jar,
+                java_cmd=java_cmd,
+                gcc_cmd=gcc_cmd,
+                c_header=self.config.c_header
+            )
         
         # 创建客户端（如果不存在或配置变化）
         if not self.agent_client:

@@ -1,0 +1,234 @@
+// 数组嵌套访问测试
+// 测试各种数组类型的深度嵌套访问: a[b[c[d[...]]]]
+
+// 全局普通数组
+int ga[20] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+
+// 全局 const 数组
+const int gca[20] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+
+// 全局 static 数组 (全局本身就是静态的，但语法上可以加)
+int gsa[20] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+// 测试自嵌套: a[a[a[a[...]]]]
+int testSelfNest() {
+    int a[20] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int r1, r2, r3, r4, r5;
+    
+    // a[1]=2, a[2]=3, a[3]=4, a[4]=5, a[5]=6
+    r1 = a[a[1]];           // a[2] = 3
+    r2 = a[a[a[1]]];        // a[a[2]] = a[3] = 4
+    r3 = a[a[a[a[1]]]];     // a[a[a[2]]] = a[a[3]] = a[4] = 5
+    r4 = a[a[a[a[a[1]]]]];  // a[5] = 6
+    r5 = a[a[a[a[a[a[1]]]]]]; // a[6] = 7
+    
+    printf("%d %d %d %d %d\n", r1, r2, r3, r4, r5);
+    return r5;
+}
+
+// 测试 const 数组自嵌套
+int testConstSelfNest() {
+    const int ca[15] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 0, 1};
+    int r1, r2, r3, r4;
+    
+    // ca[0]=2, ca[2]=4, ca[4]=6, ca[6]=8, ca[8]=10
+    r1 = ca[ca[0]];           // ca[2] = 4
+    r2 = ca[ca[ca[0]]];       // ca[4] = 6
+    r3 = ca[ca[ca[ca[0]]]];   // ca[6] = 8
+    r4 = ca[ca[ca[ca[ca[0]]]]]; // ca[8] = 10
+    
+    printf("%d %d %d %d\n", r1, r2, r3, r4);
+    return r4;
+}
+
+// 测试 static 数组自嵌套
+int testStaticSelfNest() {
+    static int sa[15] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 0};
+    int r1, r2, r3, r4, r5, r6;
+    
+    r1 = sa[sa[1]];                 // sa[2] = 3
+    r2 = sa[sa[sa[1]]];             // sa[3] = 4
+    r3 = sa[sa[sa[sa[1]]]];         // sa[4] = 5
+    r4 = sa[sa[sa[sa[sa[1]]]]];     // sa[5] = 6
+    r5 = sa[sa[sa[sa[sa[sa[1]]]]]]; // sa[6] = 7
+    r6 = sa[sa[sa[sa[sa[sa[sa[1]]]]]]]; // sa[7] = 8
+    
+    printf("%d %d %d %d %d %d\n", r1, r2, r3, r4, r5, r6);
+    return r6;
+}
+
+// 测试全局数组自嵌套
+int testGlobalSelfNest() {
+    int r1, r2, r3, r4, r5;
+    
+    // ga: {0,1,2,3,4,5,6,7,8,9,10,...}
+    r1 = ga[ga[5]];                   // ga[5] = 5
+    r2 = ga[ga[ga[5]]];               // ga[5] = 5
+    r3 = ga[ga[ga[ga[5]]]];           // ga[5] = 5
+    r4 = ga[ga[ga[ga[ga[3]]]]];       // ga[3]=3 -> ga[3]=3 -> ... = 3
+    r5 = ga[ga[ga[ga[ga[ga[2]]]]]];   // ga[2]=2 -> ... = 2
+    
+    printf("%d %d %d %d %d\n", r1, r2, r3, r4, r5);
+    return r1 + r2 + r3 + r4 + r5;
+}
+
+// 测试全局 const 数组自嵌套
+int testGlobalConstSelfNest() {
+    int r1, r2, r3;
+    
+    r1 = gca[gca[gca[1]]];           // gca[1]=1 -> gca[1]=1 -> gca[1]=1
+    r2 = gca[gca[gca[gca[2]]]];      // gca[2]=2 -> ... = 2
+    r3 = gca[gca[gca[gca[gca[3]]]]]; // gca[3]=3 -> ... = 3
+    
+    printf("%d %d %d\n", r1, r2, r3);
+    return r1 + r2 + r3;
+}
+
+// 测试不同数组互相嵌套
+int testCrossNest() {
+    int a[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    const int b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    static int c[10] = {2, 3, 4, 5, 6, 7, 8, 9, 0, 1};
+    int r1, r2, r3, r4, r5, r6;
+    
+    // a[b[c[x]]] 类型嵌套
+    r1 = a[b[0]];           // a[1] = 1
+    r2 = a[b[c[0]]];        // a[b[2]] = a[3] = 3
+    r3 = a[b[c[a[1]]]];     // a[b[c[1]]] = a[b[3]] = a[4] = 4
+    r4 = b[a[c[1]]];        // b[a[3]] = b[3] = 4
+    r5 = c[b[a[2]]];        // c[b[2]] = c[3] = 5
+    r6 = a[b[c[a[b[c[0]]]]]]; // 深度嵌套
+    
+    printf("%d %d %d %d %d %d\n", r1, r2, r3, r4, r5, r6);
+    return r1 + r2 + r3 + r4 + r5 + r6;
+}
+
+// 测试全局数组与局部数组互相嵌套
+int testGlobalLocalCross() {
+    int la[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    const int lca[10] = {1, 0, 3, 2, 5, 4, 7, 6, 9, 8};
+    int r1, r2, r3, r4, r5;
+    
+    // 全局嵌套局部
+    r1 = ga[la[1]];                 // ga[1] = 1
+    r2 = ga[la[la[2]]];             // ga[la[2]] = ga[2] = 2
+    r3 = gca[la[lca[0]]];           // gca[la[1]] = gca[1] = 1
+    
+    // 局部嵌套全局
+    r4 = la[ga[3]];                 // la[3] = 3
+    r5 = lca[gca[ga[1]]];           // lca[gca[1]] = lca[1] = 0
+    
+    printf("%d %d %d %d %d\n", r1, r2, r3, r4, r5);
+    return r1 + r2 + r3 + r4 + r5;
+}
+
+// 测试超深嵌套 (10层+)
+int testDeepNest() {
+    int a[20] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 0};
+    int r;
+    
+    // 10层嵌套: a[1]=2, a[2]=3, ..., a[9]=10, a[10]=11
+    r = a[a[a[a[a[a[a[a[a[a[1]]]]]]]]]];
+    // 展开: a[a[a[a[a[a[a[a[a[2]]]]]]]]] = a[a[a[a[a[a[a[a[3]]]]]]]] = ... = a[10] = 11
+    
+    printf("%d\n", r);
+    return r;
+}
+
+// 测试嵌套作为数组赋值的索引
+int testNestedAssign() {
+    int a[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int b[10] = {5, 4, 3, 2, 1, 0, 9, 8, 7, 6};
+    int i;
+    
+    // 用嵌套索引赋值
+    a[b[0]] = 100;          // a[5] = 100
+    a[b[b[0]]] = 200;       // a[b[5]] = a[0] = 200
+    a[a[b[1]]] = 300;       // a[a[4]] = a[4] = 300 (注意a[4]此时还是4)
+    
+    for (i = 0; i < 10; i = i + 1) {
+        printf("%d ", a[i]);
+    }
+    printf("\n");
+    return 0;
+}
+
+// 测试嵌套在表达式中
+int testNestedExpr() {
+    int a[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    const int b[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int r1, r2, r3;
+    
+    r1 = a[b[1]] + a[b[2]] * a[b[3]];   // a[1] + a[2] * a[3] = 2 + 3*4 = 14
+    r2 = a[a[b[0]]] - b[b[a[1]]];       // a[a[0]] - b[b[2]] = a[1] - b[2] = 2 - 2 = 0
+    r3 = (a[b[1]] + b[a[1]]) * a[b[a[b[0]]]]; // (a[1] + b[2]) * a[b[a[0]]] = (2+2) * a[b[1]] = 4 * a[1] = 8
+    
+    printf("%d %d %d\n", r1, r2, r3);
+    return r1 + r2 + r3;
+}
+
+// 测试函数参数中的数组嵌套
+int sumNested(int arr[], int idx[], int n) {
+    int sum, i;
+    sum = 0;
+    for (i = 0; i < n; i = i + 1) {
+        sum = sum + arr[idx[i]];
+    }
+    return sum;
+}
+
+int testParamNest() {
+    int a[10] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
+    int idx[5] = {0, 2, 4, 6, 8};
+    int r;
+    
+    r = sumNested(a, idx, 5);  // a[0]+a[2]+a[4]+a[6]+a[8] = 10+30+50+70+90 = 250
+    printf("%d\n", r);
+    
+    // 嵌套调用
+    r = a[idx[idx[0]]];  // a[idx[0]] = a[0] = 10
+    printf("%d\n", r);
+    
+    return r;
+}
+
+int main() {
+    int total;
+    total = 0;
+    
+    printf("=== Self Nest ===\n");
+    total = total + testSelfNest();
+    
+    printf("=== Const Self Nest ===\n");
+    total = total + testConstSelfNest();
+    
+    printf("=== Static Self Nest ===\n");
+    total = total + testStaticSelfNest();
+    
+    printf("=== Global Self Nest ===\n");
+    total = total + testGlobalSelfNest();
+    
+    printf("=== Global Const Self Nest ===\n");
+    total = total + testGlobalConstSelfNest();
+    
+    printf("=== Cross Nest ===\n");
+    total = total + testCrossNest();
+    
+    printf("=== Global Local Cross ===\n");
+    total = total + testGlobalLocalCross();
+    
+    printf("=== Deep Nest ===\n");
+    total = total + testDeepNest();
+    
+    printf("=== Nested Assign ===\n");
+    total = total + testNestedAssign();
+    
+    printf("=== Nested Expr ===\n");
+    total = total + testNestedExpr();
+    
+    printf("=== Param Nest ===\n");
+    total = total + testParamNest();
+    
+    printf("=== Total: %d ===\n", total);
+    return 0;
+}

@@ -108,6 +108,13 @@ class Config:
     compiler_project_dir: str = "../Compiler"
     mars_jar: str = "MARS2025+.jar"
     c_header: str = ""
+    instruction_weights: dict = field(default_factory=lambda: {
+        "Division": 15,
+        "Multiply": 5,
+        "Jump/Branch": 2,
+        "Memory": 3,
+        "Others": 1,
+    })
     timeout: TimeoutConfig = field(default_factory=TimeoutConfig)
     parallel: ParallelConfig = field(default_factory=ParallelConfig)
     tools: ToolsConfig = field(default_factory=ToolsConfig)
@@ -175,6 +182,13 @@ class Config:
             compiler_project_dir=data.get('compiler_project_dir', '../Compiler'),
             mars_jar=data.get('mars_jar', 'Mars.jar'),
             c_header=data.get('c_header', cls._default_c_header()),
+            instruction_weights=data.get('instruction_weights', {
+                "Division": 15,
+                "Multiply": 5,
+                "Jump/Branch": 2,
+                "Memory": 3,
+                "Others": 1,
+            }),
             timeout=timeout,
             parallel=parallel,
             tools=tools,
@@ -188,6 +202,13 @@ class Config:
             compiler_project_dir='../Compiler',
             mars_jar='Mars.jar',
             c_header=cls._default_c_header(),
+            instruction_weights={
+                "Division": 15,
+                "Multiply": 5,
+                "Jump/Branch": 2,
+                "Memory": 3,
+                "Others": 1,
+            },
             timeout=TimeoutConfig(),
             parallel=ParallelConfig(),
             tools=ToolsConfig(),

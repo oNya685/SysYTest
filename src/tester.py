@@ -20,13 +20,7 @@ from .utils import read_file_safe, compare_outputs
 
 SUPPORTED_LANGUAGES = {"java", "c", "cpp"}
 
-INSTRUCTION_WEIGHTS = {
-    "Division": 15,
-    "Multiply": 5,
-    "Jump/Branch": 2,
-    "Memory": 3,
-    "Others": 1,
-}
+# 指令类型显示顺序
 _CYCLE_BREAKDOWN_ORDER = ["Division", "Multiply", "Jump/Branch", "Memory", "Others"]
 
 
@@ -39,9 +33,12 @@ class CompilerConfig:
 
 @dataclass
 class TestTask:
-    """测试任务"""
+    """测试任务
+    
+    注意：worker_id 由 _get_thread_worker_id 动态分配，
+    确保每个线程有独立的工作目录，避免并行时文件冲突。
+    """
     case: TestCase
-    worker_id: int
 
 
 class CompilerTester:
@@ -77,7 +74,13 @@ class CompilerTester:
         self._next_worker_id = 0
 
     def _get_thread_worker_id(self, max_workers: int) -> int:
-        """为当前线程分配一个稳定的 worker_id（0..max_workers-1）。"""
+        """为当前线程分配一个稳定的 worker_id（0..max_workers-1）。
+        
+        每个线程首次调用时分配一个唯一 ID，后续调用返回相同 ID。
+        这确保了同一线程始终使用同一个工作目录，避免并行时文件冲突。
+        
+        注意：依赖 ThreadPoolExecutor 的线程数不超过 max_workers 的假设。
+        """
         tid = threading.get_ident()
         cached = self._thread_worker_ids.get(tid)
         if cached is not None:
@@ -480,7 +483,10 @@ class CompilerTester:
             return False, str(e)
 
     def _read_instruction_statistics(self, worker_dir: Path) -> Tuple[Optional[int], Optional[str]]:
-        """读取 Mars 输出的 InstructionStatistics.txt 并计算加权 cycle（若存在）。"""
+        """读取 Mars 输出的 InstructionStatistics.txt 并计算加权 cycle（若存在）。
+        
+        权重从 config.yaml 的 instruction_weights 读取，可自定义。
+        """
         stats_path = worker_dir / "InstructionStatistics.txt"
         if not stats_path.exists():
             return None, None
@@ -501,9 +507,12 @@ class CompilerTester:
             except ValueError:
                 continue
 
+        # 从配置读取权重
+        weights = self.config.instruction_weights
+        
         final_cycle = 0
         for name, count in counts.items():
-            weight = INSTRUCTION_WEIGHTS.get(name)
+            weight = weights.get(name)
             if weight is None:
                 continue
             final_cycle += count * weight
@@ -708,12 +717,12 @@ class CompilerTester:
         lock = threading.Lock()
         
         def run_test(task: TestTask) -> Tuple[TestCase, TestResult]:
-            # worker_id 必须与线程绑定，否则并行执行时会复用同一 worker 目录，导致 testfile/mips/tmp_exe 互相覆盖
+            # worker_id 由线程动态分配，确保每个线程有独立工作目录
             worker_id = self._get_thread_worker_id(max_workers)
             result = self.test(task.case.testfile, task.case.input_file, worker_id)
             return task.case, result
         
-        tasks = [TestTask(case, 0) for case in cases]
+        tasks = [TestTask(case) for case in cases]
         
         # 决定是否渐进启动
         use_ramp_up = total >= ramp_up_threshold

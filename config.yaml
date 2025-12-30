@@ -11,10 +11,11 @@ tools:
   jdk_home: ""       # JDK安装目录，如 "C:/Program Files/Java/jdk-17"
   gcc_path: ""       # gcc/g++可执行文件路径
   cmake_path: "C:/Program Files/CMake/bin/cmake.exe"     # Cmake 安装路径，如 "C:/Program Files/CMake/bin/cmake.exe"
+
 # 超时设置 (秒)
 timeout:
   compile: 60          # 编译器编译超时
-  mars: 20             # Mars执行超时
+  mars: 30             # Mars执行超时
   gcc_compile: 30      # g++编译超时
   gcc_run: 120         # g++运行超时
   java_compile: 120    # Java项目编译超时
@@ -23,7 +24,16 @@ timeout:
 
 # 并行测试设置
 parallel:
-  max_workers: 8       # 最大并行线程数（慎重调大）
+  max_workers: 16       # 最大并行线程数（慎重调大）
+
+# MIPS 指令周期权重 (用于计算加权 cycle)
+# 可根据实际 CPU 实现调整
+instruction_weights:
+  Division: 15
+  Multiply: 5
+  "Jump/Branch": 2
+  Memory: 3
+  Others: 1
 
 # C语言头文件 (用于g++编译)
 c_header: |

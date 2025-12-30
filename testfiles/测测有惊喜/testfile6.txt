@@ -1,0 +1,35 @@
+/* test_bug_fib.sy */
+int main() {
+    int a = getint();
+    int b =getint();
+    int i = getint();
+    
+    for (;i < 6;) {
+        printf("%d\n", a);
+        
+        /* 
+           预期输出: 0, 1, 1, 2, 3, 5
+        */
+
+        int next_val = a + b;
+        
+        /* 
+           Phi Updates:
+           a = b      (依赖 b_old)
+           b = a + b  (依赖 b_old, a_old)
+           
+           如果在计算 next_val 时使用了临时变量还好。
+           但在回边传参时：
+           move a <- b
+           move b <- next_val
+           
+           如果先 move b <- next_val，那么 move a <- b 就会把 next_val 赋给 a。
+           导致 a 直接跳了两级。
+        */
+        a = b;
+        b = next_val;
+        
+        i = i + 1;
+    }
+    return 0;
+}

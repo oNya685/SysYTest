@@ -1,0 +1,13 @@
+int main() {
+    int a = getint();
+    int b = getint();
+int i;
+    for (i = 0; i < 3; i = i + 1) {
+        // 关键：b 依赖 a 的旧值，然后 a 更新
+        b = a;
+        a = a + 10;
+    }
+	printf("%d %d", a, b);
+    // 期望：a=31, b=21
+    return a + b;
+}

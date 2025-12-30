@@ -1,0 +1,35 @@
+/* test_bug_chain.sy */
+int main() {
+    int a = getint();
+    int b = getint();
+    int i = getint();
+    
+    for (;i < 5;) {
+        /* 
+           预期输出:
+           0 1
+           1 2
+           2 3
+           3 4
+           4 5
+        */
+        printf("%d %d\n", a, b);
+
+        /* 关键更新逻辑:
+           MIPS后端会生成两个Phi Copy:
+           1. a = b (需要 b 的旧值)
+           2. b = b + 1 (产生 b 的新值)
+           
+           如果出错: b 先加 1，然后 a 被赋值为新的 b。
+           导致 a 和 b 输出相同的值。
+        */
+        int next_a = b;
+        int next_b = b + 1;
+        
+        a = next_a;
+        b = next_b;
+        
+        i = i + 1;
+    }
+    return 0;
+}

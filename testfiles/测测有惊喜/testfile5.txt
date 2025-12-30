@@ -1,0 +1,33 @@
+/* test_bug_swap.sy */
+int main() {
+    int x = getint();
+    int y = getint();
+    int i = getint();
+
+    for (;i < 4;) {
+        printf("%d %d\n", x, y);
+        
+        /* 
+           预期输出 (交替):
+           1 2
+           2 1
+           1 2
+           2 1
+        */
+
+        /* 关键逻辑: 同时交换 */
+        int tx = x;
+        int ty = y;
+        
+        /* 
+           Phi 节点:
+           x_new = y_old
+           y_new = x_old
+        */
+        x = ty;
+        y = tx;
+        
+        i = i + 1;
+    }
+    return 0;
+}

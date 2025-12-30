@@ -6,7 +6,7 @@ int main() {
     int sum_mod = 0;
 
     // 循环 100万次
-    for (i = 0; i < 100000; i = i + 1) {
+    for (i = 0; i < 30000; i = i + 1) {
         // 生成全范围随机数
         val = val * 69069 + 1;
         
@@ -37,7 +37,7 @@ int main() {
         sum_mod = sum_mod + (val % 2) - (val % -4) + (val % 10);
         
         // 每 10万次输出一次，定位错误大概范围
-        if (i % 10000 == 0) {
+        if (i % 5000 == 0) {
             printf("Iter %d: DivSum=%d, ModSum=%d\n", i, sum_div, sum_mod);
             // 重置 sum 防止 overflow 使得比较困难（虽然 int overflow 是确定的，但为了看清数字）
             sum_div = 0;

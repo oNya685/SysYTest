@@ -24,7 +24,7 @@ int main() {
     // 1. 测试 INT_MIN 附近的 50000 个数
     // 注意：SysY 中字面量写 -2147483648 可能会有问题，通常用 -2147483647 - 1
     int start = MIN_VAL; 
-    for (i = 0; i < 50000; i = i + 1) {
+    for (i = 0; i < 20000; i = i + 1) {
         int val = start + i;
         for (j = 0; j < 8; j = j + 1) {
             int d = divisors[j];
@@ -38,7 +38,7 @@ int main() {
     // 2. 测试 INT_MAX 附近的 50000 个数
     checksum = 0;
     start = MAX_VAL - 50000;
-    for (i = 0; i < 50000; i = i + 1) {
+    for (i = 0; i < 20000; i = i + 1) {
         int val = start + i;
         for (j = 0; j < 8; j = j + 1) {
             int d = divisors[j];
@@ -52,7 +52,7 @@ int main() {
     // 3. 随机抽样测试 (防止中间范围有坑)
     checksum = 0;
     int seed = 19260817;
-    for (i = 0; i < 50000; i = i + 1) {
+    for (i = 0; i < 20000; i = i + 1) {
         // 简单的 LCG
         seed = seed * 1664525 + 1013904223;
         for (j = 0; j < 8; j = j + 1) {

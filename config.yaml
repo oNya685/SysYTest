@@ -24,7 +24,7 @@ timeout:
 
 # 并行测试设置
 parallel:
-  max_workers: 16       # 最大并行线程数（慎重调大）
+  max_workers: 12      # 最大并行线程数（慎重调大）
 
 # MIPS 指令周期权重 (用于计算加权 cycle)
 instruction_weights:

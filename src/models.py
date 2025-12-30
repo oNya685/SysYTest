@@ -10,11 +10,11 @@ from typing import Optional
 class TestStatus(Enum):
     """测试状态"""
     PASSED = "通过"
-    FAILED = "失败"
-    COMPILE_ERROR = "编译错误"
-    RUNTIME_ERROR = "运行错误"
-    TIMEOUT = "超时"
-    SKIPPED = "跳过"
+    FAILED = "失败(WA)"
+    COMPILE_ERROR = "编译错误(RE)"
+    RUNTIME_ERROR = "运行错误(OCE)"
+    TIMEOUT = "超时(WA or TLE)"
+    SKIPPED = "跳过(Report by ISSUE or fix it and PR)"
 
 
 @dataclass

@@ -563,7 +563,8 @@ class CompilerTester:
             )
             
             if compile_result.returncode != 0:
-                return None, f"g++编译失败:\n{compile_result.stderr}"
+                error_msg = compile_result.stderr or compile_result.stdout or "(无错误信息)"
+                return None, f"g++编译失败:\n{error_msg}"
             
             # 运行
             input_data = ""

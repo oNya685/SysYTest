@@ -1,0 +1,16 @@
+// 测试函数内静态变量与全局变量重名的情况
+int global_var = 10;
+int test_func() {
+    static int global_var = 20;
+    return global_var;
+}
+
+int main() {
+    int result1 = test_func();
+    int result2 = global_var;
+    
+    printf("%d\n", result1);
+    printf("%d\n", result2);
+    
+    return 0;
+}"

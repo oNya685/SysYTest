@@ -271,9 +271,9 @@ testfiles/
 
 确保已安装 JDK 并添加到 PATH，或在 `config.yaml` 中配置 `jdk_home`。
 
-### Q: 提示找不到 g++
+### Q: 提示找不到 g++/g++编译错误
 
-确保已安装 MinGW 或其他 GCC 工具链并添加到 PATH，或在 `config.yaml` 中配置 `gcc_path`。
+确保已安装 MinGW 或其他 GCC 工具链并添加到 PATH，或在 `config.yaml` 中配置 `gcc_path`（如果配置到 `config.yaml` 后仍然报错，请考虑将其 `bin` 目录添加到环境变量，例如 "`C:\Program Files\mingw64\bin\`"）。
 
 ### Q: 测试很慢
 

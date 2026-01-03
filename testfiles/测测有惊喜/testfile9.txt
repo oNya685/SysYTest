@@ -1,0 +1,17 @@
+void test(int seed) {
+    int arr[10] = {1};
+    int i = 1;
+    for (; i < 10; i = i + 1) {
+        arr[i] = arr[i - 1] * 2 + arr[i] + seed;
+        printf("%d, ", arr[i]);
+    }
+    return;
+}
+
+int main() {
+    test(1);
+    test(2);
+    test(3);
+    test(4);
+    return 0;
+}

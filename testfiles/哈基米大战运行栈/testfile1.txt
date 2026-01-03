@@ -3,21 +3,21 @@
 
 int g_fails = 0;
 
-void putint(int x) {
+void putchar(int x) {
     printf("%d", x);
 }
 
 void assert(int expected, int actual) {
     if (expected != actual) {
         printf("Fail! Expected: ");
-        putint(expected);
+        putchar(expected);
         printf(", Actual: ");
-        putint(actual);
+        putchar(actual);
         printf("\n"); // \n
         g_fails = g_fails + 1;
     } else {
         printf("Success! Result: ");
-        putint(actual);
+        putchar(actual);
         printf("\n");
     }
 }

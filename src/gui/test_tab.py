@@ -9,6 +9,7 @@ from typing import List, Optional, TYPE_CHECKING, Tuple
 import threading
 import queue
 import subprocess
+import time
 
 from .base import BaseTab, OutputMixin
 from .theme import COLORS, create_styled_listbox, create_styled_text
@@ -16,6 +17,7 @@ from .widgets import AnimatedProgressBar, IconButton
 from ..discovery import TestDiscovery
 from ..multi_runner import compile_testers, test_multi
 from ..tester import CompilerTester
+from ..utils import format_duration
 from ..zip_compilers import ZipCompilerInstance, discover_zip_compilers, extract_zip_instance
 
 if TYPE_CHECKING:
@@ -699,10 +701,13 @@ class TestTab(BaseTab, OutputMixin):
                 self.message_queue.put(("progress", progress, f"{passed + failed}/{total_tasks}"))
 
             try:
+                run_started = time.perf_counter()
                 test_multi(ok_testers, cases, max_workers=max_workers, stop_event=self._stop_event, callback=on_result)
             except Exception as e:
                 self.message_queue.put(("error", str(e)))
                 return
+            run_elapsed = time.perf_counter() - run_started
+            self.message_queue.put(("runtime", run_elapsed))
 
             if self.is_running and not self._stop_event.is_set():
                 self.message_queue.put(("done", passed, failed, total_tasks))
@@ -770,6 +775,10 @@ class TestTab(BaseTab, OutputMixin):
                     _, error_msg = msg
                     self._log(f"✗ 错误: {error_msg}", 'error')
                     self._finish_test(0, 0, stopped=True)
+
+                elif msg[0] == "runtime":
+                    _, elapsed = msg
+                    self._log(f"总运行时长: {format_duration(elapsed)}", "info")
                 
                 elif msg[0] == 'done':
                     _, passed, failed, total = msg

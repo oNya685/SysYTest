@@ -35,3 +35,21 @@ def normalize_output(output: Optional[str]) -> str:
 def compare_outputs(actual: str, expected: str) -> bool:
     """比较两个输出是否相同"""
     return normalize_output(actual) == normalize_output(expected)
+
+
+def format_duration(seconds: float) -> str:
+    """格式化耗时显示（用于日志输出）。"""
+    try:
+        seconds_value = float(seconds)
+    except (TypeError, ValueError):
+        seconds_value = 0.0
+    if seconds_value < 0:
+        seconds_value = 0.0
+
+    if seconds_value < 60:
+        return f"{seconds_value:.3f}s"
+    minutes, sec = divmod(seconds_value, 60.0)
+    if minutes < 60:
+        return f"{int(minutes)}m{sec:06.3f}s"
+    hours, minutes = divmod(minutes, 60.0)
+    return f"{int(hours)}h{int(minutes):02d}m{sec:06.3f}s"

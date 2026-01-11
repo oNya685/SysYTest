@@ -3,6 +3,7 @@
 """
 import argparse
 import sys
+import time
 from pathlib import Path
 from typing import List, Optional
 
@@ -11,6 +12,7 @@ from .discovery import TestDiscovery
 from .models import TestResult, TestStatus
 from .multi_runner import compile_testers, test_multi
 from .tester import CompilerTester
+from .utils import format_duration
 from .zip_compilers import discover_zip_compilers, extract_zip_instance
 
 
@@ -165,7 +167,10 @@ def run_cli(
         progress = completed / total_tasks * 100 if total_tasks else 100.0
         print(_format_output("INFO", f"进度: {passed + failed}/{total} ({progress:.1f}%)"), flush=True)
     
+    run_started = time.perf_counter()
     test_multi(ok_testers, cases, max_workers=config.parallel.max_workers, callback=on_result)
+    run_elapsed = time.perf_counter() - run_started
+    print(_format_output("INFO", f"总运行时长: {format_duration(run_elapsed)}"), flush=True)
     
     print(_format_output("INFO", f"完成: {passed} 通过, {failed} 失败, 共 {total}"))
     for name, (p, f) in per_compiler.items():

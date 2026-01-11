@@ -1,4 +1,4 @@
-const int N = 50000;
+const int N = 50;
 const int S = 65536;
 const int K = 8;
 

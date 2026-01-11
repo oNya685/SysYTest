@@ -16,25 +16,23 @@ const int POW10_7 = 10000000;
 const int POW10_8 = 100000000;
 const int POW10_9 = 1000000000;
 
-const int WEEKDAY_LEN[7] = {6, 6, 7, 9, 8, 6, 8};
-const int WEEKDAY_HASH[7] = {3449, 2563, 2235, 9863, 4307, 1423, 9046};
-const int WEEKDAY_ABBR_HASH[7] = {8799, 5117, 5937, 5288, 4250, 5462, 6185};
-
-const int MONTH_LEN[12] = {7, 8, 5, 5, 3, 4, 4, 6, 9, 7, 8, 8};
-const int MONTH_HASH[12] = {5659, 4435, 1814, 3398, 3294, 3300, 3058, 9527, 1597, 100, 6354, 1253};
-const int MONTH_ABBR_HASH[12] = {1835, 3752, 3287, 9467, 3294, 4455, 4453, 104, 6705, 7852, 2272, 9459};
-
 const int AM_HASH = 8592;
 const int PM_HASH = 550;
-
 const int FMT_C_LEN = 5;
-const int FMT_C[5] = {37, 88, 32, 37, 120};
-
 const int FMT_X_LEN = 8;
-const int FMT_X[8] = {37, 72, 58, 37, 77, 58, 37, 83};
-
 const int FMT_x_LEN = 9;
-const int FMT_x[9] = {37, 66, 32, 37, 100, 44, 32, 37, 89};
+
+int WEEKDAY_LEN[7] = {6, 6, 7, 9, 8, 6, 8};
+int WEEKDAY_HASH[7] = {3449, 2563, 2235, 9863, 4307, 1423, 9046};
+int WEEKDAY_ABBR_HASH[7] = {8799, 5117, 5937, 5288, 4250, 5462, 6185};
+
+int MONTH_LEN[12] = {7, 8, 5, 5, 3, 4, 4, 6, 9, 7, 8, 8};
+int MONTH_HASH[12] = {5659, 4435, 1814, 3398, 3294, 3300, 3058, 9527, 1597, 100, 6354, 1253};
+int MONTH_ABBR_HASH[12] = {1835, 3752, 3287, 9467, 3294, 4455, 4453, 104, 6705, 7852, 2272, 9459};
+
+int FMT_C[5] = {37, 88, 32, 37, 120};
+int FMT_X[8] = {37, 72, 58, 37, 77, 58, 37, 83};
+int FMT_x[9] = {37, 66, 32, 37, 100, 44, 32, 37, 89};
 
 int out_len;
 int out_hash;

@@ -503,7 +503,7 @@ class CompilerTester:
         if lang == "java":
             if not self.compiler_jar.exists():
                 return False, "Compiler.jar不存在，请先编译项目"
-            cmd = [tools.get_java(), "-jar", str(self.compiler_jar)]
+            cmd = [tools.get_java()] + tools.get_java_options() + ["-jar", str(self.compiler_jar)]
         else:  # c/cpp
             if not self.compiler_exe.exists():
                 return False, "Compiler.exe不存在，请先编译项目"
@@ -574,7 +574,7 @@ class CompilerTester:
         """运行Mars模拟器"""
         mips_path = worker_dir / "mips.txt"
         tools = self.config.tools
-        cmd = [tools.get_java(), "-jar", str(self.mars_jar), "nc", str(mips_path)]
+        cmd = [tools.get_java()] + tools.get_java_options() + ["-jar", str(self.mars_jar), "nc", str(mips_path)]
         
         input_data = ""
         if input_file and input_file.exists():

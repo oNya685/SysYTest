@@ -1,10 +1,12 @@
 """
 配置模块 - 从YAML文件加载配置
 """
+import os
+import shlex
 import yaml
 from pathlib import Path
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Sequence
 try:
     import tkinter.font as tkfont
 except Exception:
@@ -35,6 +37,9 @@ class ToolsConfig:
     jdk_home: str = ""       # JDK安装目录，空则用PATH
     gcc_path: str = ""       # gcc/g++可执行文件路径
     cmake_path: str = ""
+    # JVM 参数（用于运行 Compiler.jar / Mars.jar）。
+    # 推荐：["-XX:ActiveProcessorCount=1", "-XX:+UseSerialGC"]
+    java_options: List[str] = field(default_factory=list)
     
     def _normalize(self, value) -> str:
         if value is None:
@@ -51,6 +56,29 @@ class ToolsConfig:
         if jdk_home:
             return str(Path(jdk_home) / "bin" / "java")
         return "java"
+
+    def get_java_options(self) -> List[str]:
+        raw = self.java_options
+        if raw is None:
+            return []
+        if isinstance(raw, str):
+            raw = raw.strip()
+            if not raw:
+                return []
+            try:
+                return [p for p in shlex.split(raw, posix=(os.name != "nt")) if p.strip()]
+            except ValueError:
+                return [p for p in raw.split() if p.strip()]
+        if isinstance(raw, Sequence):
+            parts: List[str] = []
+            for item in raw:
+                if item is None:
+                    continue
+                text = str(item).strip()
+                if text:
+                    parts.append(text)
+            return parts
+        return [str(raw).strip()] if str(raw).strip() else []
     
     def get_javac(self) -> str:
         jdk_home = self._normalize(self.jdk_home)
@@ -172,10 +200,23 @@ class Config:
         )
         
         tools_data = data.get('tools', {})
+        java_options = tools_data.get('java_options', tools_data.get('java_opts', []))
+        if isinstance(java_options, str):
+            java_options = java_options.strip()
+            if java_options:
+                try:
+                    java_options = shlex.split(java_options, posix=(os.name != "nt"))
+                except ValueError:
+                    java_options = [p for p in java_options.split() if p.strip()]
+            else:
+                java_options = []
+        elif java_options is None:
+            java_options = []
         tools = ToolsConfig(
             jdk_home=tools_data.get('jdk_home', ''),
             gcc_path=tools_data.get('gcc_path', ''),
-            cmake_path=tools_data.get('cmake_path', '')
+            cmake_path=tools_data.get('cmake_path', ''),
+            java_options=java_options,
         )
         
         return cls(

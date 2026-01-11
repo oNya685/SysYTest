@@ -7,6 +7,9 @@ from pathlib import Path
 from typing import Optional
 from dataclasses import dataclass
 
+from ..config import get_config
+from ..utils import read_file_safe
+
 
 @dataclass
 class ToolResult:
@@ -21,6 +24,7 @@ class SysYToolServer:
     
     def __init__(self, test_dir: Path, compiler_jar: Path, mars_jar: Path, 
                  java_cmd: str = "java", gcc_cmd: str = "g++", c_header: str = ""):
+        self.config = get_config()
         self.test_dir = Path(test_dir)
         self.compiler_jar = Path(compiler_jar)
         self.mars_jar = Path(mars_jar)
@@ -195,7 +199,7 @@ class SysYToolServer:
         # 1. 运行编译器
         compiler_output = ""
         try:
-            cmd = [self.java_cmd, "-jar", str(self.compiler_jar)]
+            cmd = [self.java_cmd] + self.config.tools.get_java_options() + ["-jar", str(self.compiler_jar)]
             result = subprocess.run(
                 cmd, capture_output=True, text=True, errors="replace",
                 timeout=30, cwd=str(self.work_dir)
@@ -225,9 +229,9 @@ class SysYToolServer:
         try:
             input_data = ""
             if self.current_input and self.current_input.exists():
-                input_data = self.current_input.read_text(encoding='utf-8')
+                input_data = read_file_safe(self.current_input)
             
-            mars_cmd = [self.java_cmd, "-jar", str(self.mars_jar), "nc", str(mips_path)]
+            mars_cmd = [self.java_cmd] + self.config.tools.get_java_options() + ["-jar", str(self.mars_jar), "nc", str(mips_path)]
             mars_result = subprocess.run(
                 mars_cmd, input=input_data, capture_output=True, text=True, errors="replace",
                 timeout=10, cwd=str(self.work_dir)

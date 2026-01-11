@@ -11,6 +11,16 @@ tools:
   jdk_home: ""       # JDK安装目录，如 "C:/Program Files/Java/jdk-17"
   gcc_path: ""       # gcc/g++可执行文件路径
   cmake_path: "C:/Program Files/CMake/bin/cmake.exe"     # Cmake 安装路径，如 "C:/Program Files/CMake/bin/cmake.exe"
+  # JVM 参数（用于运行 Compiler.jar / Mars.jar），可按机器资源调整。
+  # 说明：评测会启动大量短生命周期 JVM；限制其线程数/GC 可显著提升并发吞吐。
+  java_options:
+    - "-XX:+UseSerialGC"
+    - "-XX:TieredStopAtLevel=1"
+    - "-XX:ActiveProcessorCount=1"
+    - "-XX:+DisableExplicitGC"
+    - "-XX:-UsePerfData"
+    - "-Djava.awt.headless=true"
+
 
 # 超时设置 (秒)
 timeout:
@@ -24,7 +34,7 @@ timeout:
 
 # 并行测试设置
 parallel:
-  max_workers: 12      # 最大并行线程数（慎重调大）
+  max_workers: 24
 
 # MIPS 指令周期权重 (用于计算加权 cycle)
 instruction_weights:
